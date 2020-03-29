@@ -1,0 +1,630 @@
+---
+title: Stroke Clinical Predictive Model
+author: "Tosin Dairo"
+date: MAY 25, 2019
+output: html_document
+categories: ["R"]
+tags: ["Health", "Predictive_Models", "Machine_Learning"]
+---
+
+## Clinical Predictive Model classifier for stroke
+
+As the name suggest, this is an essential pipeline in data science workflow that involves exploration and understanding of data in order to determine the value of the attached variable, how they interlink and correlate with each other.
+In order to attain flexibility and rapid exploration process, I would share my workflow which involves a mixture of both R and Python programming language. To become a good data scientist, it is essential to get very comfortable with any of these 2 languages mostly Python as it is the most used in job practices and has a huge community of developers. I would suggest you expose yourself to be able to use both languages not necessary in the same environment, but a good knowledge of their syntax would give a major headway to work efficiently as a data scientist and a machine learning practitioner. 
+
+<br></br>
+
+The goal of EDA is to help us understand our dataset better and in order to achieve this, the following base features / characteristics must be handled:
+
++ Names and number of variables observed
++ Level of data missingness
++ Presence of outliers
++ Variable types and class
++ Determine predictor variables and outcomes
++ Split variables into continuous/categorical classes
+
+<br></br> 
+
+```{r include=FALSE}
+getwd()
+library(reticulate)
+library(mice)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(stargazer)
+library(sjPlot)
+library(dataPreparation)
+library(DMwR)
+library(randomForest)  
+library(caret)
+library(pROC)
+library(ROCR)
+use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
+d <- read.csv("/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv")
+reticulate::py_config()
+```
+
+
+
+```{python include=FALSE}
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from imblearn.over_sampling import SMOTE
+```
+
+
+
+```{r}
+head(d)
+```
+
+
+
+```{r}
+d$smoking_status <- na_if(d$smoking_status, "")
+```
+
+
+
+```{python}
+print(r.d.isnull().sum())
+fig, ax = plt.subplots(figsize=(14,12))
+sns.heatmap(r.d.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
+```
+
+
+
+```{r}
+d$gender <- as.factor(d$gender)
+d$ever_married <- as.factor(d$ever_married)
+d$work_type <- as.factor(d$work_type)
+d$Residence_type <- as.factor(d$Residence_type)
+d$smoking_status <- as.factor(d$smoking_status)
+str(d)
+```
+
+
+
+```{r}
+imp <- mice(d, seed = 3333)
+```
+
+
+
+```{r}
+imp$method
+```
+
+
+
+```{r}
+dx <- mice::complete(imp)
+```
+
+
+
+```{python}
+print(r.dx.isnull().sum())
+fig, ax = plt.subplots(figsize=(14,12))
+sns.heatmap(r.dx.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
+```
+
+
+
+```{python}
+fig, ax = plt.subplots(figsize=(14,12))
+sns.pairplot(r.dx)
+plt.show()
+```
+
+
+
+```{python}
+sns.countplot(x='stroke', data = r.dx)
+```
+
+
+
+```{r echo=FALSE}
+{{knitr::spin_child('label_encode.R')}}
+```
+
+
+
+
+```{r}
+result <- encode.fit_transform(dx)
+
+dx_ <- result[[2]]
+# encode.transform()
+```
+
+
+
+```{r}
+tab_df(table(dx_$stroke), title = "Stroke Class")
+tab_df(table(dx_$hypertension), title = "Hypertension Class")
+tab_df(table(dx_$heart_disease), title = "Heart Disease Class")
+```
+
+
+
+```{r}
+# encoding <- build_encoding(dataSet = X_train, cols = "auto", verbose = TRUE)
+# X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+# X_test <- one_hot_encoder(dataSet = X_test, encoding = encoding, drop = TRUE, verbose = TRUE)
+```
+
+
+
+```{r}
+dx_$hypertension <- as.factor(dx_$hypertension)
+dx_$heart_disease <- as.factor(dx_$heart_disease)
+dx_$stroke <- as.factor(dx_$stroke)
+dx_$gender <- as.factor(dx_$gender)
+dx_$ever_married <- as.factor(dx_$ever_married)
+dx_$work_type <- as.factor(dx_$work_type)
+dx_$Residence_type <- as.factor(dx_$Residence_type)
+dx_$smoking_status <- as.factor(dx_$smoking_status)
+str(dx_)
+```
+
+
+
+```{r}
+## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification
+# balanced.data <- SMOTE(Class ~., dresstrain, perc.over = 4800, k = 5, perc.under = 1000)
+set.seed(3333)
+
+balanced_dx_ <-SMOTE(stroke ~., dx_, perc.over = 2100 , k = 5, perc.under = 160)
+
+table(balanced_dx_$stroke)
+
+
+```
+
+
+
+```{r}
+# Random sample indexes
+train_index <- sample(1:nrow(balanced_dx_), 0.8 * nrow(balanced_dx_))
+test_index <- setdiff(1:nrow(balanced_dx_), train_index)
+
+# Build X_train, y_train, X_test, y_test
+X_train <- balanced_dx_[train_index, 2:12]
+# y_train <- dx_[train_index, "stroke"]
+
+X_test <- balanced_dx_[test_index, 2:12]
+# y_test <- dx_[test_index, "stroke"]
+
+table(X_train$stroke)
+```
+
+
+
+```{r}
+# balanced_dx_$hypertension <- as.factor(balanced_dx_$hypertension)
+# balanced_dx_$heart_disease <- as.factor(balanced_dx_$heart_disease)
+# balanced_dx_$stroke <- as.factor(balanced_dx_$stroke)
+# balanced_dx_$gender <- as.factor(balanced_dx_$gender)
+# str(balanced_dx_)
+set.seed(3333)
+model <- glm (stroke ~ ., data=X_train, family = binomial)
+summary(model)
+```
+  
+
+
+```{r}
+stepAIC(model, direction='both')
+
+model_select <- glm(formula = stroke ~ gender + age + hypertension + heart_disease + 
+    ever_married + work_type + avg_glucose_level + smoking_status, 
+    family = binomial, data = X_train)
+summary(model_select)
+```
+
+
+
+```{r}
+## Predict the Values
+predict <- predict(model, X_test, type = 'response')
+
+## Create Confusion Matrix
+table(X_test$stroke, predict > 0.5)
+```
+
+
+
+```{r}
+#ROCR Curve
+ROCRpred <- prediction(predict, X_test$stroke)
+ROCRperf <- performance(ROCRpred, 'tpr','fpr')
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
+```
+
+
+
+```{r}
+auc(roc(X_test$stroke ~ predict))
+```
+
+
+
+```{r}
+set.seed(3333)
+rf = randomForest(stroke ~ .,  
+                   ntree = 100,
+                   data = X_train)
+plot(rf) 
+```
+
+
+
+```{r}
+varImp(rf)
+```
+
+
+
+```{r}
+## Important variables according to the model
+varImpPlot(rf,  
+           sort = T,
+           n.var=25,
+           main="Variable Importance")
+```
+
+
+
+```{r}
+predicted.response <- predict(rf, X_test)
+
+
+confusionMatrix(data=predicted.response,  
+                reference=X_test$stroke)
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
