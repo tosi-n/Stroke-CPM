@@ -2,26 +2,32 @@
 title: Stroke Clinical Predictive Model
 author: "Tosin Dairo"
 date: MAY 25, 2019
-output: html_document
+output: rmarkdown::github_document
 categories: ["R"]
 tags: ["Health", "Predictive_Models", "Machine_Learning"]
 ---
 
 ## Clinical Predictive Model classifier for stroke
 
-As the name suggest, this is an essential pipeline in data science workflow that involves exploration and understanding of data in order to determine the value of the attached variable, how they interlink and correlate with each other.
-In order to attain flexibility and rapid exploration process, I would share my workflow which involves a mixture of both R and Python programming language. To become a good data scientist, it is essential to get very comfortable with any of these 2 languages mostly Python as it is the most used in job practices and has a huge community of developers. I would suggest you expose yourself to be able to use both languages not necessary in the same environment, but a good knowledge of their syntax would give a major headway to work efficiently as a data scientist and a machine learning practitioner. 
+Stroke-CPM is a tool that takes information available about a patient and their observed factors, and makes a prediction regarding their diagnosis and causal factors.
+
++ Diagnosis – detects presence of stroke currently
++ Causal Factors – assess whether observed factor(s) is/are likely to be contributors to the development of stroke presently or in the future
 
 <br></br>
 
-The goal of EDA is to help us understand our dataset better and in order to achieve this, the following base features / characteristics must be handled:
+#### Observed Factors:
 
-+ Names and number of variables observed
-+ Level of data missingness
-+ Presence of outliers
-+ Variable types and class
-+ Determine predictor variables and outcomes
-+ Split variables into continuous/categorical classes
++ Gender
++ Age
++ Hypertension
++ Heart Disease
++ Ever Married
++ Work Type
++ Residence Type
++ Average Glucose Level
++ BMI
++ Smoking Status
 
 <br></br> 
 
@@ -41,6 +47,8 @@ library(caret)
 library(pROC)
 library(ROCR)
 use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
+# use_python("/usr/bin/python3", required = TRUE)
+# use_virtualenv("~/.virtualenvs/r-reticulate", required = TRUE)
 d <- read.csv("/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv")
 reticulate::py_config()
 ```
@@ -48,10 +56,11 @@ reticulate::py_config()
 
 
 ```{python include=FALSE}
+import matplotlib
+matplotlib.use('TkAgg')
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from imblearn.over_sampling import SMOTE
 ```
 
 
