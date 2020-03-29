@@ -9,10 +9,10 @@ tags: ["Health", "Predictive_Models", "Machine_Learning"]
 
 ## Clinical Predictive Model classifier for stroke
 
-Stroke-CPM is a tool that takes information available about a patient and their observed factors, and makes a prediction regarding their diagnosis and causal factors.
+Stroke-CPM is a tool that takes information available about a patient and their observed predictive factors, and makes a prediction regarding their diagnosis and causal factors.
 
 + Diagnosis – detects presence of stroke currently
-+ Causal Factors – assess whether observed factor(s) is/are likely to be contributors to the development of stroke presently or in the future
++ Causal Factors – assess whether observed predictive factor(s) is/are likely to be contributors to the development of stroke presently or in the future
 
 <br></br>
 
@@ -31,14 +31,20 @@ Stroke-CPM is a tool that takes information available about a patient and their 
 
 <br></br> 
 
+
+
+```{r echo=FALSE}
+{{knitr::spin_child('init.R')}}
+```
+
+
+
 ```{r include=FALSE}
 getwd()
 library(reticulate)
 library(mice)
 library(tidyverse)
-library(ggplot2)
 library(MASS)
-library(stargazer)
 library(sjPlot)
 library(dataPreparation)
 library(DMwR)
@@ -46,6 +52,7 @@ library(randomForest)
 library(caret)
 library(pROC)
 library(ROCR)
+library(ResourceSelection)
 use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
 # use_python("/usr/bin/python3", required = TRUE)
 # use_virtualenv("~/.virtualenvs/r-reticulate", required = TRUE)
@@ -70,7 +77,7 @@ head(d)
 ```
 
 
-
+#### Missing Values
 ```{r}
 d$smoking_status <- na_if(d$smoking_status, "")
 ```
@@ -95,6 +102,8 @@ str(d)
 ```
 
 
+#### Multiple Imputation for Missing Data
+> Using Predictive Mean Matching and Poly Regreession Technique
 
 ```{r}
 imp <- mice(d, seed = 3333)
@@ -121,6 +130,7 @@ sns.heatmap(r.dx.isnull(),yticklabels=False,cbar=False,cmap='viridis')
 ```
 
 
+#### Exploratory Analysis
 
 ```{python}
 fig, ax = plt.subplots(figsize=(14,12))
@@ -181,6 +191,7 @@ str(dx_)
 ```
 
 
+#### Class Imbalance
 
 ```{r}
 ## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification
@@ -189,13 +200,22 @@ set.seed(3333)
 
 balanced_dx_ <-SMOTE(stroke ~., dx_, perc.over = 2100 , k = 5, perc.under = 160)
 
-table(balanced_dx_$stroke)
+tab_df(table(balanced_dx_$stroke), title = "Stroke Class")
 
 
 ```
 
 
-
+### Cross Validation:
+The first stage of validation is an internal validation in which we ensure that the developed CPM makes good predictions in ‘test’ data that comes from the same population as that in which the CPM was developed. By ‘good predictions’ we mean predictions that are well calibrated and have high discrimination.
+Similar to the discussion in the previous module on regularised regression (lasso/ridge) a useful way of performing this is cross validation.
+Recall that k-fold cross-validation involves:
+Dividing the data we have available into k equally sized groups (commonly we use k between 5 and 10).
+Fit the CPM using all the groups except one.
+Use the remaining group as ‘test’ data to see how the model performs
+Repeat this process k times, leaving out a different group each time.
+Average performance over these k.
+A simpler alternative to cross-validation would just be to divide the data into two groups, fit the data in one group and validate it in the other. You will commonly see this in the literature.
 ```{r}
 # Random sample indexes
 train_index <- sample(1:nrow(balanced_dx_), 0.8 * nrow(balanced_dx_))
@@ -212,6 +232,7 @@ table(X_train$stroke)
 ```
 
 
+#### Model Training - Logistic Regression
 
 ```{r}
 # balanced_dx_$hypertension <- as.factor(balanced_dx_$hypertension)
@@ -246,27 +267,38 @@ table(X_test$stroke, predict > 0.5)
 ```
 
 
+Discrimination refers to the ability of a CPM to separate patients who will develop an outcome from those who will not. This is closely related to the concepts of sensitivity and specificity (as discussed in the last semester). A CPM that can have a simultaneously high sensitivity and specificity has good discrimination. However, the definition of sensitivity and specificity are a little limited for our purposes since they rely on a specific cutpoint. A receiver operator characteristic (ROC) curve plots sensitivity against ‘1-specificity’ across the full range of potential cutpoints.
 
 ```{r}
 #ROCR Curve
 ROCRpred <- prediction(predict, X_test$stroke)
 ROCRperf <- performance(ROCRpred, 'tpr','fpr')
-plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
+p <- plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
+abline(a=0, b=1)
 ```
-
+The ‘ideal’ test (or CPM) has 100% sensitivity and 100% specificity – i.e. we know with certainty what the outcome is. A test (or CPM) with no value lies on the diagonal line – because I can build a CPM as good as this just by tossing a (weighted) coin for each patient to decide whether they have the outcome or not. So we expect that any reasonable CPM or test should fall within this ‘envelope’. The further to the top left of the graph the ROC curve falls, the better the test.
 
 
 ```{r}
 auc(roc(X_test$stroke ~ predict))
+
+hoslem.test(x = X_test$stroke, y=predict, g=10)
 ```
+ We measure how far to the top left of the graph the curve is via the area under the curve (AUC):
+So that an AUC of 1.0 represents perfect discrimination, an AUC of 0.5 represents no predictive value (no better than tossing a coin), and the AUC we would expect to see for our CPM is somewhere in between the two.
+So that an AUC of 1.0 represents perfect discrimination, an AUC of 0.5 represents no predictive value (no better than tossing a coin), and the AUC we would expect to see for our CPM is somewhere in between the two.
+
+Calibration and discrimination are two complementary measures, and in general we would like a CPM to perform well on both measures. Good calibration is generally the easier to achieve, but also ‘drifts’ most readily when the population changes. Poor calibration generally reflects a poor model rather than limitations in the data. Poor discrimination is hard to fix since this often reflects a lack of information (e.g. we do not know why, among a group of similar patients, some will go on to have a heart attack and some won’t) rather than problems in the actual model. 
 
 
+#### Model Training - Random Forest 
 
 ```{r}
 set.seed(3333)
-rf = randomForest(stroke ~ .,  
-                   ntree = 100,
+rf = randomForest(stroke ~ ., 
+                  ntree = 500,
                    data = X_train)
+rf
 plot(rf) 
 ```
 
@@ -282,7 +314,7 @@ varImp(rf)
 ## Important variables according to the model
 varImpPlot(rf,  
            sort = T,
-           n.var=25,
+           n.var=10,
            main="Variable Importance")
 ```
 
@@ -296,6 +328,32 @@ confusionMatrix(data=predicted.response,
                 reference=X_test$stroke)
 ```
 
+#### Discrimination of Random Forest Classifier
+Discrimination refers to the ability of a CPM to separate patients who will develop an outcome from those who will not. This is closely related to the concepts of sensitivity and specificity (as discussed in the last semester). A CPM that can have a simultaneously high sensitivity and specificity has good discrimination. However, the definition of sensitivity and specificity are a little limited for our purposes since they rely on a specific cutpoint. A receiver operator characteristic (ROC) curve plots sensitivity against ‘1-specificity’ across the full range of potential cutpoints.
+
+```{r}
+#ROCR Curve
+ROCRpred_rf <- prediction(as.numeric(predicted.response), X_test$stroke)
+ROCRperf_rf <- performance(ROCRpred_rf, 'tpr','fpr')
+plot(ROCRperf_rf, colorize = TRUE, text.adj = c(-0.2,1.7))
+abline(a=0, b=1)
+```
+The ‘ideal’ test (or CPM) has 100% sensitivity and 100% specificity – i.e. we know with certainty what the outcome is. A test (or CPM) with no value lies on the diagonal line – because I can build a CPM as good as this just by tossing a (weighted) coin for each patient to decide whether they have the outcome or not. So we expect that any reasonable CPM or test should fall within this ‘envelope’. The further to the top left of the graph the ROC curve falls, the better the test.
+
+
+```{r}
+
+auc(roc(X_test$stroke ~ as.numeric(predicted.response)))
+
+hoslem.test(x = X_test$stroke, y=as.numeric(predicted.response), g=10)
+
+```
+ We measure how far to the top left of the graph the curve is via the area under the curve (AUC):
+So that an AUC of 1.0 represents perfect discrimination, an AUC of 0.5 represents no predictive value (no better than tossing a coin), and the AUC we would expect to see for our CPM is somewhere in between the two.
+So that an AUC of 1.0 represents perfect discrimination, an AUC of 0.5 represents no predictive value (no better than tossing a coin), and the AUC we would expect to see for our CPM is somewhere in between the two.
+
+#### Calibration of Random Forest Classifier
+Calibration and discrimination are two complementary measures, and in general we would like a CPM to perform well on both measures. Good calibration is generally the easier to achieve, but also ‘drifts’ most readily when the population changes. Poor calibration generally reflects a poor model rather than limitations in the data. Poor discrimination is hard to fix since this often reflects a lack of information (e.g. we do not know why, among a group of similar patients, some will go on to have a heart attack and some won’t) rather than problems in the actual model.
 
 
 ```{r}
@@ -303,19 +361,7 @@ confusionMatrix(data=predicted.response,
 ```
 
 
-
-```{r}
-
-```
-
-
-
-```{r}
-
-```
-
-
-
+### External validation
 ```{r}
 
 ```

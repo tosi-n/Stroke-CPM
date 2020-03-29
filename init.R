@@ -6,7 +6,7 @@
 # MIT License
 #
 
-my_packages = c("rmarkdown","httr", "flexdashboard", "tidyverse", "plotly", "shiny", "scales", "DT", "echarts4r", "tools", "naniar", "mice", "devtools")
+my_packages = c("rmarkdown","httr", "reticulate", "tidyverse", "mice", "MASS", "sjPlot", "dataPreparation", "DMwR", "randomForest", "caret", "pROC", "ROCR", "ResourceSelection","devtools")
 
 
 install_if_missing = function(p) {

@@ -6,13 +6,13 @@ MAY 25, 2019
 ## Clinical Predictive Model classifier for stroke
 
 Stroke-CPM is a tool that takes information available about a patient
-and their observed predictive factors, and makes a prediction regarding
-their diagnosis and causal factors.
+and their observed factors, and makes a prediction regarding their
+diagnosis and causal factors.
 
   - Diagnosis – detects presence of stroke currently
-  - Causal Factors – assess whether observed predictive factor(s) is/are
-    likely to be contributors to the development of stroke presently or
-    in the future
+  - Causal Factors – assess whether observed factor(s) is/are likely to
+    be contributors to the development of stroke presently or in the
+    future
 
 <br></br>
 
@@ -27,35 +27,10 @@ their diagnosis and causal factors.
   - Residence Type
   - Average Glucose Level
   - BMI
-  - Smoking Status
+  - Smoking
+    Status
 
 <br></br>
-
-``` r
-#
-# init.R
-# Stroke-CPM
-#
-# Created by Tosin-Dairo on 28/03/2020
-# MIT License
-#
-
-my_packages = c("rmarkdown","httr", "reticulate", "tidyverse", "mice", "MASS", "sjPlot", "dataPreparation", "DMwR", "randomForest", "caret", "pROC", "ROCR", "ResourceSelection","devtools")
-
-
-install_if_missing = function(p) {
-  if (p %in% rownames(installed.packages()) == FALSE) {
-    install.packages(p)
-  }
-}
-
-invisible(sapply(my_packages, install_if_missing))
-# install pool from Github
-invisible(devtools::install_github("rstudio/pool"))
-```
-
-    ## Skipping install of 'pool' from a github remote, the SHA1 (0b03680b) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
 
 ``` r
 head(d)
@@ -75,8 +50,6 @@ head(d)
     ## 4          Rural             69.04 35.9 formerly smoked      0
     ## 5          Rural            161.28 19.1                      0
     ## 6          Urban            210.95 50.1                      0
-
-#### Missing Values
 
 ``` r
 d$smoking_status <- na_if(d$smoking_status, "")
@@ -105,7 +78,7 @@ fig, ax = plt.subplots(figsize=(14,12))
 sns.heatmap(r.d.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 d$gender <- as.factor(d$gender)
@@ -129,10 +102,6 @@ str(d)
     ##  $ bmi              : num  18 39.2 17.6 35.9 19.1 50.1 17.7 27 32.3 54.6 ...
     ##  $ smoking_status   : Factor w/ 4 levels "","formerly smoked",..: NA 3 NA 2 NA NA 2 3 4 3 ...
     ##  $ stroke           : int  0 0 0 0 0 0 0 0 0 0 ...
-
-#### Multiple Imputation for Missing Data
-
-> Using Predictive Mean Matching and Poly Regreession Technique
 
 ``` r
 imp <- mice(d, seed = 3333)
@@ -206,16 +175,14 @@ fig, ax = plt.subplots(figsize=(14,12))
 sns.heatmap(r.dx.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
-#### Exploratory Analysis
+![](CPM_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` python
 fig, ax = plt.subplots(figsize=(14,12))
 sns.pairplot(r.dx)
 ```
 
-    ## <seaborn.axisgrid.PairGrid object at 0x139d035c0>
+    ## <seaborn.axisgrid.PairGrid object at 0x13ac455f8>
 
 ``` python
 plt.show()
@@ -224,13 +191,13 @@ plt.show()
     ## /Volumes/Loopdisk/Dev/PyDsc/env/lib/python3.6/site-packages/matplotlib/figure.py:2299: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
     ##   warnings.warn("This figure includes Axes that are not compatible "
 
-![](CPM_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` python
 sns.countplot(x='stroke', data = r.dx)
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 #
@@ -506,8 +473,6 @@ str(dx_)
     ##  $ smoking_status   : Factor w/ 3 levels "1","2","3": 1 1 1 2 1 2 2 1 3 1 ...
     ##  $ stroke           : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...
 
-#### Class Imbalance
-
 ``` r
 ## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification
 # balanced.data <- SMOTE(Class ~., dresstrain, perc.over = 4800, k = 5, perc.under = 1000)
@@ -515,69 +480,12 @@ set.seed(3333)
 
 balanced_dx_ <-SMOTE(stroke ~., dx_, perc.over = 2100 , k = 5, perc.under = 160)
 
-tab_df(table(balanced_dx_$stroke), title = "Stroke Class")
+table(balanced_dx_$stroke)
 ```
 
-<table style="border-collapse:collapse; border:none;">
-
-<caption style="font-weight: bold; text-align:left;">
-
-Stroke
-Class
-
-</caption>
-
-<tr>
-
-<th style="border-top: double; text-align:center; font-style:italic; font-weight:normal; padding:0.2cm; border-bottom:1px solid black; text-align:left; ">
-
-0
-
-</th>
-
-<th style="border-top: double; text-align:center; font-style:italic; font-weight:normal; padding:0.2cm; border-bottom:1px solid black; ">
-
-1
-
-</th>
-
-</tr>
-
-<tr>
-
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; border-bottom: double; modelcolumn0 ">
-
-26308
-
-</td>
-
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center; border-bottom: double;  ">
-
-17226
-
-</td>
-
-</tr>
-
-</table>
-
-### Cross Validation:
-
-The first stage of validation is an internal validation in which we
-ensure that the developed CPM makes good predictions in ‘test’ data that
-comes from the same population as that in which the CPM was developed.
-By ‘good predictions’ we mean predictions that are well calibrated and
-have high discrimination. Similar to the discussion in the previous
-module on regularised regression (lasso/ridge) a useful way of
-performing this is cross validation. Recall that k-fold cross-validation
-involves: Dividing the data we have available into k equally sized
-groups (commonly we use k between 5 and 10). Fit the CPM using all the
-groups except one. Use the remaining group as ‘test’ data to see how the
-model performs Repeat this process k times, leaving out a different
-group each time. Average performance over these k. A simpler alternative
-to cross-validation would just be to divide the data into two groups,
-fit the data in one group and validate it in the other. You will
-commonly see this in the literature.
+    ## 
+    ##     0     1 
+    ## 26308 17226
 
 ``` r
 # Random sample indexes
@@ -597,8 +505,6 @@ table(X_train$stroke)
     ## 
     ##     0     1 
     ## 21000 13827
-
-#### Model Training - Logistic Regression
 
 ``` r
 # balanced_dx_$hypertension <- as.factor(balanced_dx_$hypertension)
@@ -781,32 +687,14 @@ table(X_test$stroke, predict > 0.5)
     ##   0  4678  630
     ##   1   617 2782
 
-Discrimination refers to the ability of a CPM to separate patients who
-will develop an outcome from those who will not. This is closely related
-to the concepts of sensitivity and specificity (as discussed in the last
-semester). A CPM that can have a simultaneously high sensitivity and
-specificity has good discrimination. However, the definition of
-sensitivity and specificity are a little limited for our purposes since
-they rely on a specific cutpoint. A receiver operator characteristic
-(ROC) curve plots sensitivity against ‘1-specificity’ across the full
-range of potential cutpoints.
-
 ``` r
 #ROCR Curve
 ROCRpred <- prediction(predict, X_test$stroke)
 ROCRperf <- performance(ROCRpred, 'tpr','fpr')
-p <- plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
-abline(a=0, b=1)
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-24-1.png)<!-- --> The ‘ideal’
-test (or CPM) has 100% sensitivity and 100% specificity – i.e. we know
-with certainty what the outcome is. A test (or CPM) with no value lies
-on the diagonal line – because I can build a CPM as good as this just by
-tossing a (weighted) coin for each patient to decide whether they have
-the outcome or not. So we expect that any reasonable CPM or test should
-fall within this ‘envelope’. The further to the top left of the graph
-the ROC curve falls, the better the test.
+![](CPM_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ``` r
 auc(roc(X_test$stroke ~ predict))
@@ -819,89 +707,40 @@ auc(roc(X_test$stroke ~ predict))
     ## Area under the curve: 0.9307
 
 ``` r
-hoslem.test(x = X_test$stroke, y=predict, g=10)
-```
-
-    ## Warning in Ops.factor(1, y): '-' not meaningful for factors
-
-    ## 
-    ##  Hosmer and Lemeshow goodness of fit (GOF) test
-    ## 
-    ## data:  X_test$stroke, predict
-    ## X-squared = 8707, df = 8, p-value < 2.2e-16
-
-We measure how far to the top left of the graph the curve is via the
-area under the curve (AUC): So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two. So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two.
-
-Calibration and discrimination are two complementary measures, and in
-general we would like a CPM to perform well on both measures. Good
-calibration is generally the easier to achieve, but also ‘drifts’ most
-readily when the population changes. Poor calibration generally reflects
-a poor model rather than limitations in the data. Poor discrimination is
-hard to fix since this often reflects a lack of information (e.g. we do
-not know why, among a group of similar patients, some will go on to have
-a heart attack and some won’t) rather than problems in the actual model.
-
-#### Model Training - Random Forest
-
-``` r
 set.seed(3333)
-rf = randomForest(stroke ~ ., 
-                  ntree = 500,
+rf = randomForest(stroke ~ .,  
+                   ntree = 100,
                    data = X_train)
-rf
-```
-
-    ## 
-    ## Call:
-    ##  randomForest(formula = stroke ~ ., data = X_train, ntree = 500) 
-    ##                Type of random forest: classification
-    ##                      Number of trees: 500
-    ## No. of variables tried at each split: 3
-    ## 
-    ##         OOB estimate of  error rate: 10.65%
-    ## Confusion matrix:
-    ##       0     1 class.error
-    ## 0 19064  1936  0.09219048
-    ## 1  1772 12055  0.12815506
-
-``` r
 plot(rf) 
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ``` r
 varImp(rf)
 ```
 
     ##                     Overall
-    ## gender             151.3191
-    ## age               6032.4295
-    ## hypertension      1346.1225
-    ## heart_disease     2152.4434
-    ## ever_married       508.3672
-    ## work_type          485.5623
-    ## Residence_type     132.9275
-    ## avg_glucose_level 1731.3158
-    ## bmi               1450.9949
-    ## smoking_status     273.4629
+    ## gender             149.0646
+    ## age               6047.7663
+    ## hypertension      1259.1926
+    ## heart_disease     2089.8359
+    ## ever_married       522.4899
+    ## work_type          523.0879
+    ## Residence_type     132.7980
+    ## avg_glucose_level 1725.3603
+    ## bmi               1465.2538
+    ## smoking_status     275.6309
 
 ``` r
 ## Important variables according to the model
 varImpPlot(rf,  
            sort = T,
-           n.var=10,
+           n.var=25,
            main="Variable Importance")
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ``` r
 predicted.response <- predict(rf, X_test)
@@ -915,99 +754,26 @@ confusionMatrix(data=predicted.response,
     ## 
     ##           Reference
     ## Prediction    0    1
-    ##          0 4844  447
-    ##          1  464 2952
+    ##          0 4840  442
+    ##          1  468 2957
     ##                                           
-    ##                Accuracy : 0.8954          
-    ##                  95% CI : (0.8888, 0.9017)
+    ##                Accuracy : 0.8955          
+    ##                  95% CI : (0.8889, 0.9018)
     ##     No Information Rate : 0.6096          
     ##     P-Value [Acc > NIR] : <2e-16          
     ##                                           
-    ##                   Kappa : 0.7804          
+    ##                   Kappa : 0.7807          
     ##                                           
-    ##  Mcnemar's Test P-Value : 0.596           
+    ##  Mcnemar's Test P-Value : 0.4073          
     ##                                           
-    ##             Sensitivity : 0.9126          
-    ##             Specificity : 0.8685          
-    ##          Pos Pred Value : 0.9155          
-    ##          Neg Pred Value : 0.8642          
+    ##             Sensitivity : 0.9118          
+    ##             Specificity : 0.8700          
+    ##          Pos Pred Value : 0.9163          
+    ##          Neg Pred Value : 0.8634          
     ##              Prevalence : 0.6096          
-    ##          Detection Rate : 0.5563          
-    ##    Detection Prevalence : 0.6077          
-    ##       Balanced Accuracy : 0.8905          
+    ##          Detection Rate : 0.5559          
+    ##    Detection Prevalence : 0.6066          
+    ##       Balanced Accuracy : 0.8909          
     ##                                           
     ##        'Positive' Class : 0               
-    ## 
-
-#### Discrimination of Random Forest Classifier
-
-Discrimination refers to the ability of a CPM to separate patients who
-will develop an outcome from those who will not. This is closely related
-to the concepts of sensitivity and specificity (as discussed in the last
-semester). A CPM that can have a simultaneously high sensitivity and
-specificity has good discrimination. However, the definition of
-sensitivity and specificity are a little limited for our purposes since
-they rely on a specific cutpoint. A receiver operator characteristic
-(ROC) curve plots sensitivity against ‘1-specificity’ across the full
-range of potential cutpoints.
-
-``` r
-#ROCR Curve
-ROCRpred_rf <- prediction(as.numeric(predicted.response), X_test$stroke)
-ROCRperf_rf <- performance(ROCRpred_rf, 'tpr','fpr')
-plot(ROCRperf_rf, colorize = TRUE, text.adj = c(-0.2,1.7))
-abline(a=0, b=1)
-```
-
-![](CPM_files/figure-gfm/unnamed-chunk-30-1.png)<!-- --> The ‘ideal’
-test (or CPM) has 100% sensitivity and 100% specificity – i.e. we know
-with certainty what the outcome is. A test (or CPM) with no value lies
-on the diagonal line – because I can build a CPM as good as this just by
-tossing a (weighted) coin for each patient to decide whether they have
-the outcome or not. So we expect that any reasonable CPM or test should
-fall within this ‘envelope’. The further to the top left of the graph
-the ROC curve falls, the better the test.
-
-``` r
-auc(roc(X_test$stroke ~ as.numeric(predicted.response)))
-```
-
-    ## Setting levels: control = 0, case = 1
-
-    ## Setting direction: controls < cases
-
-    ## Area under the curve: 0.8905
-
-``` r
-hoslem.test(x = X_test$stroke, y=as.numeric(predicted.response), g=10)
-```
-
-    ## Warning in Ops.factor(1, y): '-' not meaningful for factors
-
-    ## 
-    ##  Hosmer and Lemeshow goodness of fit (GOF) test
-    ## 
-    ## data:  X_test$stroke, as.numeric(predicted.response)
-    ## X-squared = 8707, df = 8, p-value < 2.2e-16
-
-We measure how far to the top left of the graph the curve is via the
-area under the curve (AUC): So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two. So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two.
-
-#### Calibration of Random Forest Classifier
-
-Calibration and discrimination are two complementary measures, and in
-general we would like a CPM to perform well on both measures. Good
-calibration is generally the easier to achieve, but also ‘drifts’ most
-readily when the population changes. Poor calibration generally reflects
-a poor model rather than limitations in the data. Poor discrimination is
-hard to fix since this often reflects a lack of information (e.g. we do
-not know why, among a group of similar patients, some will go on to have
-a heart attack and some won’t) rather than problems in the actual model.
-
-### External validation
+    ##
