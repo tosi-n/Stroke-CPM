@@ -1,11 +1,20 @@
 ---
-title: Stroke Clinical Predictive Model
+title: "Stroke Clinical Predictive Model"
 author: "Tosin Dairo"
-date: MAY 25, 2019
-output: rmarkdown::github_document
-categories: ["R"]
-tags: ["Health", "Predictive_Models", "Machine_Learning"]
+date: "MAY 25, 2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  rmarkdown::github_document: default
+  word_document: default
+tags:
+- Health
+- Predictive_Models
+- Machine_Learning
+categories: R
 ---
+For easy reproducibility run [CPM.rmd](https://github.com/tosi-n/Stroke-CPM/blob/master/CPM.rmd)
 
 ## Clinical Predictive Model classifier for stroke
 
@@ -33,36 +42,19 @@ Stroke-CPM is a tool that takes information available about a patient and their 
 
 
 
-```{r include=FALSE}
+```{r results='hide'}
 {{knitr::spin_child('init.R')}}
 ```
 
+Click [init.R](https://github.com/tosi-n/Stroke-CPM/blob/master/init.R) script to locate Rstudio environment setup and R package installation 
 
+```{r echo=FALSE}
 
-```{r include=FALSE}
-getwd()
-library(reticulate)
-library(mice)
-library(tidyverse)
-library(MASS)
-library(sjPlot)
-library(dataPreparation)
-library(DMwR)
-library(randomForest)  
-library(caret)
-library(pROC)
-library(ROCR)
-library(ResourceSelection)
-use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
-# use_python("/usr/bin/python3", required = TRUE)
-# use_virtualenv("~/.virtualenvs/r-reticulate", required = TRUE)
-d <- read.csv("/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv")
-reticulate::py_config()
 ```
 
 
-
-```{python include=FALSE}
+#### Python library import
+```{python results='hide'}
 import matplotlib
 matplotlib.use('TkAgg')
 import pandas as pd
@@ -72,7 +64,7 @@ import seaborn as sns
 
 
 
-```{r}
+```{r results='hide'}
 head(d)
 ```
 
@@ -85,7 +77,7 @@ d$smoking_status <- na_if(d$smoking_status, "")
 
 
 
-```{python}
+```{python results='hide'}
 print(r.d.isnull().sum())
 fig, ax = plt.subplots(figsize=(14,12))
 sns.heatmap(r.d.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
@@ -93,7 +85,7 @@ sns.heatmap(r.d.isnull(),yticklabels=False,cbar=False,cmap='viridis')
 
 
 
-```{r}
+```{r results='hide'}
 d$gender <- as.factor(d$gender)
 d$ever_married <- as.factor(d$ever_married)
 d$work_type <- as.factor(d$work_type)
@@ -104,29 +96,29 @@ str(d)
 After checking for missing values, smoking status and bmi had missing values which could lead drawing an inaccurate inference about the stroke classification
 
 #### Multiple Imputation for Missing Data
-> To prevent bias in prediction missing values are predicted and imputed into the stroke dataset  
+> To prevent bias in prediction, missing values are predicted and imputed into the stroke dataset  
 
 Using MICE package, Predictive Mean Matching and Poly Regreession technique are used to imput data missing at random from smoking status and bmi
 
-```{r include=FALSE}
+```{r results=FALSE}
 imp <- mice(d, seed = 3333)
 ```
 
 
 
-```{r}
+```{r results='hide'}
 imp$method
 ```
 
 
 
-```{r}
+```{r results='hide'}
 dx <- mice::complete(imp)
 ```
 
 
 
-```{python}
+```{python include=FALSE}
 print(r.dx.isnull().sum())
 fig, ax = plt.subplots(figsize=(14,12))
 sns.heatmap(r.dx.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
@@ -137,7 +129,7 @@ sns.heatmap(r.dx.isnull(),yticklabels=False,cbar=False,cmap='viridis')
 
 Stroke class  from exploratory pairplot below shows imbalance in stroke outcome, hypertension predictor and heart.
 Fitting a model on this imbalanced dataset would lead to overfitting whereby the trained model crams the train set data and predict wrongly on external datasets
-```{python}
+```{python results='hide'}
 fig, ax = plt.subplots(figsize=(14,12))
 sns.pairplot(r.dx)
 plt.show()
@@ -145,7 +137,7 @@ plt.show()
 
 
 
-```{python}
+```{python results='hide'}
 sns.countplot(x='stroke', data = r.dx)
 plt.title("Stroke Class Distribution")
 plt.show()
@@ -153,14 +145,14 @@ plt.show()
 
 
 
-```{r include=FALSE}
+```{r results='hide'}
 {{knitr::spin_child('label_encode.R')}}
 ```
-
+Click [label_encode.R](https://github.com/tosi-n/Stroke-CPM/blob/master/label_encode.R) script to locate label encoder code
 
 
 In order for us to predict the minority class in the imbalanced variable, the factor variables need to be encoded to vector types to enable prediction through oversampleing of minority class. 
-```{r}
+```{r results='hide'}
 result <- encode.fit_transform(dx)
 
 dx_ <- result[[2]]
@@ -168,9 +160,9 @@ dx_ <- result[[2]]
 ```
 
 
->Checking proportion of imbalance in the beelow variables
+>Checking proportion of imbalance in the below variables
 
-```{r}
+```{r results='hide'}
 tab_df(table(dx_$stroke), title = "Stroke Class")
 tab_df(table(dx_$hypertension), title = "Hypertension Class")
 tab_df(table(dx_$heart_disease), title = "Heart Disease Class")
@@ -178,15 +170,7 @@ tab_df(table(dx_$heart_disease), title = "Heart Disease Class")
 
 
 
-```{r}
-# encoding <- build_encoding(dataSet = X_train, cols = "auto", verbose = TRUE)
-# X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
-# X_test <- one_hot_encoder(dataSet = X_test, encoding = encoding, drop = TRUE, verbose = TRUE)
-```
-
-
-
-```{r}
+```{r results='hide'}
 dx_$hypertension <- as.factor(dx_$hypertension)
 dx_$heart_disease <- as.factor(dx_$heart_disease)
 dx_$stroke <- as.factor(dx_$stroke)
@@ -202,9 +186,8 @@ str(dx_)
 #### Class Imbalance
 To predict the minoritty class in stroke, the train set data is expose to SMOTE package inorder to use K-Nearest Neighbour for predicting miority class
 
-```{r}
+```{r results='hide'}
 ## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification
-# balanced.data <- SMOTE(Class ~., dresstrain, perc.over = 4800, k = 5, perc.under = 1000)
 set.seed(3333)
 
 balanced_dx_ <-SMOTE(stroke ~., dx_, perc.over = 2100 , k = 5, perc.under = 160)
@@ -218,39 +201,37 @@ tab_df(table(balanced_dx_$stroke), title = "Stroke Class")
 ### Cross Validation:
 For good predictions of stroke, a model must be well calibrated and have high discrimination.
 The input data  was divided into two groups, in order to fit the data in one group and validate it in the other.This helps to reducing training bias.
-```{r}
+```{r results='hide'}
 # Random sample indexes
 train_index <- sample(1:nrow(balanced_dx_), 0.8 * nrow(balanced_dx_))
 test_index <- setdiff(1:nrow(balanced_dx_), train_index)
 
-# Build X_train, y_train, X_test, y_test
+# Build X_train, X_test
 X_train <- balanced_dx_[train_index, 2:12]
-# y_train <- dx_[train_index, "stroke"]
 
 X_test <- balanced_dx_[test_index, 2:12]
-# y_test <- dx_[test_index, "stroke"]
 
 ```
 
 
 #### Model Training - Logistic Regression
 To classify patients who have stroke or do not have stroke and to check for contributing causal factors to stroke, a binary classifier is built to predict the cases of stroke. State-of-the-art binary classifier Logistic Regression is applied. 
-As per the TRIPOD guidelines, we would need to report this stroke clinical predictive model in sufficient detail to allow for reproducability on a totally dufferent dataset.
-```{r}
+As per the [TRIPOD](https://www.tripod-statement.org/Portals/0/Tripod%20Checklist%20Prediction%20Model%20Development%20and%20Validation%20PDF.pdf) guidelines, we would need to report this stroke clinical predictive model in sufficient detail to allow for reproducability on a totally dufferent dataset.
+```{r results='hide'}
 set.seed(3333)
 model <- glm (stroke ~ ., data=X_train, family = binomial)
 summary(model)
 ```
   
 
-
-```{r}
+###### Selection of contributing causal factors to stroke
+```{r results='hide'}
 stepAIC(model, direction='both')
 ```
 
 
 
-```{r}
+```{r results='hide'}
 model_select <- glm(formula = stroke ~ gender + age + hypertension + heart_disease + 
     ever_married + work_type + avg_glucose_level + smoking_status, 
     family = binomial, data = X_train)
@@ -261,7 +242,7 @@ summary(model_select)
 Using the stepwise AIC technique, the trained model for stroke has dropped the variables BMI and Reesident Type as they are not contributing factors that would lead to stroke. Stroke classification is non-preedicttive from the above 2 variables, and they have non-significant p-values which are > 0.05. 
 
 
-```{r}
+```{r results='hide'}
 ## Predict the Values
 predict <- predict(model, X_test, type = 'response')
 
@@ -272,7 +253,7 @@ table(X_test$stroke, predict > 0.5)
 #### Discrimination of Logistic Regression Classifier
 Using the Discrimination, we check if trained CPM has a simultaneously high sensitivity and specificity. A receiver operator characteristic (ROC) curve is ploted using sensitivity against ‘1-specificity’ across the full range of potential cutpoints at 93%.
 
-```{r}
+```{r results='hide'}
 #ROCR Curve
 ROCRpred <- prediction(predict, X_test$stroke)
 ROCRperf <- performance(ROCRpred, 'tpr','fpr')
@@ -297,9 +278,9 @@ Calibration using Hosmer and Lemeshow goodness of fit test shows significant p-v
 
 #### Model Training - Random Forest 
 To further check for a better prediction classifier, a Random Forest model is built check for contributing causal factors to stroke and also to classify patients who have stroke or do not have stroke.
-As per the TRIPOD guidelines, we would need to report this stroke clinical predictive model in sufficient detail to allow for reproducability on a totally dufferent dataset.
+As per the [TRIPOD](https://www.tripod-statement.org/Portals/0/Tripod%20Checklist%20Prediction%20Model%20Development%20and%20Validation%20PDF.pdf) guidelines, we would need to report this stroke clinical predictive model in sufficient detail to allow for reproducability on a totally dufferent dataset.
 
-```{r}
+```{r results='hide'}
 set.seed(3333)
 rf = randomForest(stroke ~ ., 
                   ntree = 500,
@@ -309,8 +290,8 @@ plot(rf)
 ```
 
 
-
-```{r}
+###### Selection of contributing causal factors to stroke
+```{r results='hide'}
 varImp(rf)
 ```
 
@@ -327,7 +308,7 @@ varImpPlot(rf,
 >After applying Random Forest classifier algorithm, all contributing causal factors were kept by the model and rated in order of importance as seen in the above plot
 
 
-```{r}
+```{r results='hide'}
 predicted.response <- predict(rf, X_test)
 
 
@@ -338,7 +319,7 @@ confusionMatrix(data=predicted.response,
 #### Discrimination of Random Forest Classifier
 Using the Discrimination, we check if trained CPM has a simultaneously high sensitivity and specificity. A receiver operator characteristic (ROC) curve is ploted using sensitivity against ‘1-specificity’ across the full range of potential cutpoints at 88%.
 
-```{r}
+```{r results='hide'}
 #ROCR Curve
 ROCRpred_rf <- prediction(as.numeric(predicted.response), X_test$stroke)
 ROCRperf_rf <- performance(ROCRpred_rf, 'tpr','fpr')
@@ -363,12 +344,14 @@ So the AUC for the Random Forest classifier is 0.89 which represents a near perf
 Calibration using Hosmer and Lemeshow goodness of fit test shows significant p-value which indicates model validity
 
 
+
+
 ```{r}
 
 ```
 
 
-### External validation
+
 ```{r}
 
 ```

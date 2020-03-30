@@ -1,0 +1,870 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Stroke Clinical Predictive Model},
+            pdfauthor={Tosin Dairo},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Stroke Clinical Predictive Model}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Tosin Dairo}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{MAY 25, 2020}
+
+
+\begin{document}
+\maketitle
+
+\hypertarget{clinical-predictive-model-classifier-for-stroke}{%
+\subsection{Clinical Predictive Model classifier for
+stroke}\label{clinical-predictive-model-classifier-for-stroke}}
+
+Stroke-CPM is a tool that takes information available about a patient
+and their observed predictive factors, and makes a prediction regarding
+their diagnosis and causal factors.
+
+\begin{itemize}
+\tightlist
+\item
+  Diagnosis -- detects presence of stroke currently
+\item
+  Causal Factors -- assess whether observed predictive factor(s) is/are
+  likely to be contributors to the development of stroke presently or in
+  the future
+\end{itemize}
+
+\hypertarget{observed-factors}{%
+\paragraph{Observed Factors:}\label{observed-factors}}
+
+\begin{itemize}
+\tightlist
+\item
+  Gender
+\item
+  Age
+\item
+  Hypertension
+\item
+  Heart Disease
+\item
+  Ever Married
+\item
+  Work Type
+\item
+  Residence Type
+\item
+  Average Glucose Level
+\item
+  BMI
+\item
+  Smoking Status
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\{\{knitr}\OperatorTok{::}\KeywordTok{spin_child}\NormalTok{(}\StringTok{'init.R'}\NormalTok{)\}\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(reticulate)}
+\KeywordTok{library}\NormalTok{(mice)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: lattice
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'mice'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     cbind, rbind
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching packages -------------------------------------------------------------- tidyverse 1.2.1 --
+\end{verbatim}
+
+\begin{verbatim}
+## v ggplot2 3.2.1     v purrr   0.3.3
+## v tibble  2.1.3     v dplyr   0.8.5
+## v tidyr   1.0.0     v stringr 1.4.0
+## v readr   1.3.1     v forcats 0.4.0
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts ----------------------------------------------------------------- tidyverse_conflicts() --
+## x tidyr::complete() masks mice::complete()
+## x dplyr::filter()   masks stats::filter()
+## x dplyr::lag()      masks stats::lag()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(MASS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'MASS'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(sjPlot)}
+\KeywordTok{library}\NormalTok{(dataPreparation)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: lubridate
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'lubridate'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:base':
+## 
+##     date
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: Matrix
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'Matrix'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:tidyr':
+## 
+##     expand, pack, unpack
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: progress
+\end{verbatim}
+
+\begin{verbatim}
+## dataPreparation 0.4.3
+\end{verbatim}
+
+\begin{verbatim}
+## Type dataPrepNews() to see new features/changes/bug fixes.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(DMwR)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: grid
+\end{verbatim}
+
+\begin{verbatim}
+## Registered S3 method overwritten by 'xts':
+##   method     from
+##   as.zoo.xts zoo
+\end{verbatim}
+
+\begin{verbatim}
+## Registered S3 method overwritten by 'quantmod':
+##   method            from
+##   as.zoo.data.frame zoo
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(randomForest)  }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## randomForest 4.6-14
+\end{verbatim}
+
+\begin{verbatim}
+## Type rfNews() to see new features/changes/bug fixes.
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'randomForest'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     combine
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:ggplot2':
+## 
+##     margin
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(caret)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'caret'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:purrr':
+## 
+##     lift
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(pROC)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Type 'citation("pROC")' for a citation.
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'pROC'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     cov, smooth, var
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(ROCR)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: gplots
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'gplots'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stats':
+## 
+##     lowess
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(ResourceSelection)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## ResourceSelection 0.3-5   2019-07-22
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{use_python}\NormalTok{(}\StringTok{"/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3"}\NormalTok{, }\DataTypeTok{required =} \OtherTok{TRUE}\NormalTok{)}
+\NormalTok{d <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv"}\NormalTok{)}
+\NormalTok{reticulate}\OperatorTok{::}\KeywordTok{py_config}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ matplotlib}
+\NormalTok{matplotlib.use(}\StringTok{'TkAgg'}\NormalTok{)}
+\ImportTok{import}\NormalTok{ pandas }\ImportTok{as}\NormalTok{ pd}
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\ImportTok{import}\NormalTok{ seaborn }\ImportTok{as}\NormalTok{ sns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(d)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{missing-values}{%
+\paragraph{Missing Values}\label{missing-values}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{d}\OperatorTok{$}\NormalTok{smoking_status <-}\StringTok{ }\KeywordTok{na_if}\NormalTok{(d}\OperatorTok{$}\NormalTok{smoking_status, }\StringTok{""}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\BuiltInTok{print}\NormalTok{(r.d.isnull().}\BuiltInTok{sum}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fig, ax }\OperatorTok{=}\NormalTok{ plt.subplots(figsize}\OperatorTok{=}\NormalTok{(}\DecValTok{14}\NormalTok{,}\DecValTok{12}\NormalTok{))}
+\NormalTok{sns.heatmap(r.d.isnull(),yticklabels}\OperatorTok{=}\VariableTok{False}\NormalTok{,cbar}\OperatorTok{=}\VariableTok{False}\NormalTok{,cmap}\OperatorTok{=}\StringTok{'viridis'}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{CPM_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{d}\OperatorTok{$}\NormalTok{gender <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(d}\OperatorTok{$}\NormalTok{gender)}
+\NormalTok{d}\OperatorTok{$}\NormalTok{ever_married <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(d}\OperatorTok{$}\NormalTok{ever_married)}
+\NormalTok{d}\OperatorTok{$}\NormalTok{work_type <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(d}\OperatorTok{$}\NormalTok{work_type)}
+\NormalTok{d}\OperatorTok{$}\NormalTok{Residence_type <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(d}\OperatorTok{$}\NormalTok{Residence_type)}
+\NormalTok{d}\OperatorTok{$}\NormalTok{smoking_status <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(d}\OperatorTok{$}\NormalTok{smoking_status)}
+\KeywordTok{str}\NormalTok{(d)}
+\end{Highlighting}
+\end{Shaded}
+
+After checking for missing values, smoking status and bmi had missing
+values which could lead drawing an inaccurate inference about the stroke
+classification
+
+\hypertarget{multiple-imputation-for-missing-data}{%
+\paragraph{Multiple Imputation for Missing
+Data}\label{multiple-imputation-for-missing-data}}
+
+\begin{quote}
+To prevent bias in prediction, missing values are predicted and imputed
+into the stroke dataset
+\end{quote}
+
+Using MICE package, Predictive Mean Matching and Poly Regreession
+technique are used to imput data missing at random from smoking status
+and bmi
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{imp <-}\StringTok{ }\KeywordTok{mice}\NormalTok{(d, }\DataTypeTok{seed =} \DecValTok{3333}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Number of logged events: 25
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{imp}\OperatorTok{$}\NormalTok{method}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dx <-}\StringTok{ }\NormalTok{mice}\OperatorTok{::}\KeywordTok{complete}\NormalTok{(imp)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{exploratory-analysis}{%
+\paragraph{Exploratory Analysis}\label{exploratory-analysis}}
+
+Stroke class from exploratory pairplot below shows imbalance in stroke
+outcome, hypertension predictor and heart. Fitting a model on this
+imbalanced dataset would lead to overfitting whereby the trained model
+crams the train set data and predict wrongly on external datasets
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fig, ax }\OperatorTok{=}\NormalTok{ plt.subplots(figsize}\OperatorTok{=}\NormalTok{(}\DecValTok{14}\NormalTok{,}\DecValTok{12}\NormalTok{))}
+\NormalTok{sns.pairplot(r.dx)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{CPM_files/figure-latex/unnamed-chunk-12-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sns.countplot(x}\OperatorTok{=}\StringTok{'stroke'}\NormalTok{, data }\OperatorTok{=}\NormalTok{ r.dx)}
+\NormalTok{plt.title(}\StringTok{"Stroke Class Distribution"}\NormalTok{)}
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{CPM_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\{\{knitr}\OperatorTok{::}\KeywordTok{spin_child}\NormalTok{(}\StringTok{'label_encode.R'}\NormalTok{)\}\}}
+\end{Highlighting}
+\end{Shaded}
+
+In order for us to predict the minority class in the imbalanced
+variable, the factor variables need to be encoded to vector types to
+enable prediction through oversampleing of minority class.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{result <-}\StringTok{ }\KeywordTok{encode.fit_transform}\NormalTok{(dx)}
+
+\NormalTok{dx_ <-}\StringTok{ }\NormalTok{result[[}\DecValTok{2}\NormalTok{]]}
+\CommentTok{# encode.transform()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{quote}
+Checking proportion of imbalance in the beelow variables
+\end{quote}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{tab_df}\NormalTok{(}\KeywordTok{table}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{stroke), }\DataTypeTok{title =} \StringTok{"Stroke Class"}\NormalTok{)}
+\KeywordTok{tab_df}\NormalTok{(}\KeywordTok{table}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{hypertension), }\DataTypeTok{title =} \StringTok{"Hypertension Class"}\NormalTok{)}
+\KeywordTok{tab_df}\NormalTok{(}\KeywordTok{table}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{heart_disease), }\DataTypeTok{title =} \StringTok{"Heart Disease Class"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{hypertension <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{hypertension)}
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{heart_disease <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{heart_disease)}
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{stroke <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{stroke)}
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{gender <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{gender)}
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{ever_married <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{ever_married)}
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{work_type <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{work_type)}
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{Residence_type <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{Residence_type)}
+\NormalTok{dx_}\OperatorTok{$}\NormalTok{smoking_status <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(dx_}\OperatorTok{$}\NormalTok{smoking_status)}
+\KeywordTok{str}\NormalTok{(dx_)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{class-imbalance}{%
+\paragraph{Class Imbalance}\label{class-imbalance}}
+
+To predict the minoritty class in stroke, the train set data is expose
+to SMOTE package inorder to use K-Nearest Neighbour for predicting
+miority class
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{3333}\NormalTok{)}
+
+\NormalTok{balanced_dx_ <-}\KeywordTok{SMOTE}\NormalTok{(stroke }\OperatorTok{~}\NormalTok{., dx_, }\DataTypeTok{perc.over =} \DecValTok{2100}\NormalTok{ , }\DataTypeTok{k =} \DecValTok{5}\NormalTok{, }\DataTypeTok{perc.under =} \DecValTok{160}\NormalTok{)}
+
+\KeywordTok{tab_df}\NormalTok{(}\KeywordTok{table}\NormalTok{(balanced_dx_}\OperatorTok{$}\NormalTok{stroke), }\DataTypeTok{title =} \StringTok{"Stroke Class"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{cross-validation}{%
+\subsubsection{Cross Validation:}\label{cross-validation}}
+
+For good predictions of stroke, a model must be well calibrated and have
+high discrimination. The input data was divided into two groups, in
+order to fit the data in one group and validate it in the other.This
+helps to reducing training bias.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Random sample indexes}
+\NormalTok{train_index <-}\StringTok{ }\KeywordTok{sample}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(balanced_dx_), }\FloatTok{0.8} \OperatorTok{*}\StringTok{ }\KeywordTok{nrow}\NormalTok{(balanced_dx_))}
+\NormalTok{test_index <-}\StringTok{ }\KeywordTok{setdiff}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(balanced_dx_), train_index)}
+
+\CommentTok{# Build X_train, X_test}
+\NormalTok{X_train <-}\StringTok{ }\NormalTok{balanced_dx_[train_index, }\DecValTok{2}\OperatorTok{:}\DecValTok{12}\NormalTok{]}
+
+\NormalTok{X_test <-}\StringTok{ }\NormalTok{balanced_dx_[test_index, }\DecValTok{2}\OperatorTok{:}\DecValTok{12}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{model-training---logistic-regression}{%
+\paragraph{Model Training - Logistic
+Regression}\label{model-training---logistic-regression}}
+
+To classify patients who have stroke or do not have stroke and to check
+for contributing causal factors to stroke, a binary classifier is built
+to predict the cases of stroke. State-of-the-art binary classifier
+Logistic Regression is applied. As per the TRIPOD guidelines, we would
+need to report this stroke clinical predictive model in sufficient
+detail to allow for reproducability on a totally dufferent dataset.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{3333}\NormalTok{)}
+\NormalTok{model <-}\StringTok{ }\KeywordTok{glm}\NormalTok{ (stroke }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data=}\NormalTok{X_train, }\DataTypeTok{family =}\NormalTok{ binomial)}
+\KeywordTok{summary}\NormalTok{(model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{stepAIC}\NormalTok{(model, }\DataTypeTok{direction=}\StringTok{'both'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model_select <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(}\DataTypeTok{formula =}\NormalTok{ stroke }\OperatorTok{~}\StringTok{ }\NormalTok{gender }\OperatorTok{+}\StringTok{ }\NormalTok{age }\OperatorTok{+}\StringTok{ }\NormalTok{hypertension }\OperatorTok{+}\StringTok{ }\NormalTok{heart_disease }\OperatorTok{+}\StringTok{ }
+\StringTok{    }\NormalTok{ever_married }\OperatorTok{+}\StringTok{ }\NormalTok{work_type }\OperatorTok{+}\StringTok{ }\NormalTok{avg_glucose_level }\OperatorTok{+}\StringTok{ }\NormalTok{smoking_status, }
+    \DataTypeTok{family =}\NormalTok{ binomial, }\DataTypeTok{data =}\NormalTok{ X_train)}
+\KeywordTok{summary}\NormalTok{(model_select)}
+\end{Highlighting}
+\end{Shaded}
+
+Using the stepwise AIC technique, the trained model for stroke has
+dropped the variables BMI and Reesident Type as they are not
+contributing factors that would lead to stroke. Stroke classification is
+non-preedicttive from the above 2 variables, and they have
+non-significant p-values which are \textgreater{} 0.05.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Predict the Values}
+\NormalTok{predict <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(model, X_test, }\DataTypeTok{type =} \StringTok{'response'}\NormalTok{)}
+
+\CommentTok{## Create Confusion Matrix}
+\KeywordTok{table}\NormalTok{(X_test}\OperatorTok{$}\NormalTok{stroke, predict }\OperatorTok{>}\StringTok{ }\FloatTok{0.5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{discrimination-of-logistic-regression-classifier}{%
+\paragraph{Discrimination of Logistic Regression
+Classifier}\label{discrimination-of-logistic-regression-classifier}}
+
+Using the Discrimination, we check if trained CPM has a simultaneously
+high sensitivity and specificity. A receiver operator characteristic
+(ROC) curve is ploted using sensitivity against `1-specificity' across
+the full range of potential cutpoints at 93\%.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#ROCR Curve}
+\NormalTok{ROCRpred <-}\StringTok{ }\KeywordTok{prediction}\NormalTok{(predict, X_test}\OperatorTok{$}\NormalTok{stroke)}
+\NormalTok{ROCRperf <-}\StringTok{ }\KeywordTok{performance}\NormalTok{(ROCRpred, }\StringTok{'tpr'}\NormalTok{,}\StringTok{'fpr'}\NormalTok{)}
+\NormalTok{p <-}\StringTok{ }\KeywordTok{plot}\NormalTok{(ROCRperf, }\DataTypeTok{colorize =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{text.adj =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.2}\NormalTok{,}\FloatTok{1.7}\NormalTok{))}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{a=}\DecValTok{0}\NormalTok{, }\DataTypeTok{b=}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{CPM_files/figure-latex/unnamed-chunk-24-1.pdf} The ROC
+curve shows further to the top left of the graph, this indicates a great
+test.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{auc}\NormalTok{(}\KeywordTok{roc}\NormalTok{(X_test}\OperatorTok{$}\NormalTok{stroke }\OperatorTok{~}\StringTok{ }\NormalTok{predict))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Setting levels: control = 0, case = 1
+\end{verbatim}
+
+\begin{verbatim}
+## Setting direction: controls < cases
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{hoslem.test}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ X_test}\OperatorTok{$}\NormalTok{stroke, }\DataTypeTok{y=}\NormalTok{predict, }\DataTypeTok{g=}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in Ops.factor(1, y): '-' not meaningful for factors
+\end{verbatim}
+
+To determine how far to the top left of the graph the curve is, the Area
+Under the Curve (AUC) is calculated
+
+So the AUC for the Logistic Regression Classifier is 0.92 which
+represents a near perfect discrimination
+
+\hypertarget{calibration-of-logistic-regression-classifier}{%
+\paragraph{Calibration of Logistic Regression
+Classifier}\label{calibration-of-logistic-regression-classifier}}
+
+Calibration using Hosmer and Lemeshow goodness of fit test shows
+significant p-value which indicates model validity
+
+\hypertarget{model-training---random-forest}{%
+\paragraph{Model Training - Random
+Forest}\label{model-training---random-forest}}
+
+To further check for a better prediction classifier, a Random Forest
+model is built check for contributing causal factors to stroke and also
+to classify patients who have stroke or do not have stroke. As per the
+TRIPOD guidelines, we would need to report this stroke clinical
+predictive model in sufficient detail to allow for reproducability on a
+totally dufferent dataset.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{3333}\NormalTok{)}
+\NormalTok{rf =}\StringTok{ }\KeywordTok{randomForest}\NormalTok{(stroke }\OperatorTok{~}\StringTok{ }\NormalTok{., }
+                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{,}
+                   \DataTypeTok{data =}\NormalTok{ X_train)}
+\NormalTok{rf}
+\KeywordTok{plot}\NormalTok{(rf) }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{CPM_files/figure-latex/unnamed-chunk-26-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{varImp}\NormalTok{(rf)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Important variables according to the model}
+\KeywordTok{varImpPlot}\NormalTok{(rf,  }
+           \DataTypeTok{sort =}\NormalTok{ T,}
+           \DataTypeTok{n.var=}\DecValTok{10}\NormalTok{,}
+           \DataTypeTok{main=}\StringTok{"Variable Importance"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{CPM_files/figure-latex/unnamed-chunk-28-1.pdf}
+
+\begin{quote}
+After applying Random Forest classifier algorithm, all contributing
+causal factors were kept by the model and rated in order of importance
+as seen in the above plot
+\end{quote}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{predicted.response <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(rf, X_test)}
+
+
+\KeywordTok{confusionMatrix}\NormalTok{(}\DataTypeTok{data=}\NormalTok{predicted.response,  }
+                \DataTypeTok{reference=}\NormalTok{X_test}\OperatorTok{$}\NormalTok{stroke)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{discrimination-of-random-forest-classifier}{%
+\paragraph{Discrimination of Random Forest
+Classifier}\label{discrimination-of-random-forest-classifier}}
+
+Using the Discrimination, we check if trained CPM has a simultaneously
+high sensitivity and specificity. A receiver operator characteristic
+(ROC) curve is ploted using sensitivity against `1-specificity' across
+the full range of potential cutpoints at 88\%.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#ROCR Curve}
+\NormalTok{ROCRpred_rf <-}\StringTok{ }\KeywordTok{prediction}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(predicted.response), X_test}\OperatorTok{$}\NormalTok{stroke)}
+\NormalTok{ROCRperf_rf <-}\StringTok{ }\KeywordTok{performance}\NormalTok{(ROCRpred_rf, }\StringTok{'tpr'}\NormalTok{,}\StringTok{'fpr'}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(ROCRperf_rf, }\DataTypeTok{colorize =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{text.adj =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.2}\NormalTok{,}\FloatTok{1.7}\NormalTok{))}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{a=}\DecValTok{0}\NormalTok{, }\DataTypeTok{b=}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{CPM_files/figure-latex/unnamed-chunk-30-1.pdf} The ROC
+curve shows further to the top left of the graph, this indicates a great
+test, but is slightly lower than the Logistic Regression Classifier.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{auc}\NormalTok{(}\KeywordTok{roc}\NormalTok{(X_test}\OperatorTok{$}\NormalTok{stroke }\OperatorTok{~}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(predicted.response)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Setting levels: control = 0, case = 1
+\end{verbatim}
+
+\begin{verbatim}
+## Setting direction: controls < cases
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{hoslem.test}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ X_test}\OperatorTok{$}\NormalTok{stroke, }\DataTypeTok{y=}\KeywordTok{as.numeric}\NormalTok{(predicted.response), }\DataTypeTok{g=}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in Ops.factor(1, y): '-' not meaningful for factors
+\end{verbatim}
+
+To determine how far to the top left of the graph the curve is, the Area
+Under the Curve (AUC) is calculated
+
+So the AUC for the Random Forest classifier is 0.89 which represents a
+near perfect discrimination
+
+\hypertarget{calibration-of-logistic-regression-classifier-1}{%
+\paragraph{Calibration of Logistic Regression
+Classifier}\label{calibration-of-logistic-regression-classifier-1}}
+
+Calibration using Hosmer and Lemeshow goodness of fit test shows
+significant p-value which indicates model validity
+
+\hypertarget{conclusion}{%
+\paragraph{Conclusion}\label{conclusion}}
+
+Overall logistic regression was selected as the best model to predict if
+a patient can have stroke or not. To achieve this and reduce the
+potential of bias and oveerfitting of trained model, imbalanced data are
+sampled because it is a common hurdle in healthcare. Also performed
+multiple imputation to predict missing data of smoke status in other
+ways as well
+
+
+\end{document}

@@ -1,7 +1,7 @@
 Stroke Clinical Predictive Model
 ================
 Tosin Dairo
-MAY 25, 2019
+MAY 25, 2020
 
 ## Clinical Predictive Model classifier for stroke
 
@@ -31,6 +31,10 @@ their diagnosis and causal factors.
     Status
 
 <br></br>
+
+``` r
+{{knitr::spin_child('init.R')}}
+```
 
 ``` r
 head(d)
@@ -111,13 +115,19 @@ classification
 
 #### Multiple Imputation for Missing Data
 
-> To prevent bias in prediction missing values are predicted and imputed
-> into the stroke dataset
+> To prevent bias in prediction, missing values are predicted and
+> imputed into the stroke dataset
 
 Using MICE package, Predictive Mean Matching and Poly Regreession
 technique are used to imput data missing at random from smoking status
 and
     bmi
+
+``` r
+imp <- mice(d, seed = 3333)
+```
+
+    ## Warning: Number of logged events: 25
 
 ``` r
 imp$method
@@ -171,7 +181,7 @@ fig, ax = plt.subplots(figsize=(14,12))
 sns.pairplot(r.dx)
 ```
 
-    ## <seaborn.axisgrid.PairGrid object at 0x13b9bffd0>
+    ## <seaborn.axisgrid.PairGrid object at 0x12c0e24a8>
 
 ``` python
 plt.show()
@@ -192,6 +202,10 @@ plt.show()
     ##   warnings.warn("This figure includes Axes that are not compatible "
 
 ![](CPM_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+{{knitr::spin_child('label_encode.R')}}
+```
 
 In order for us to predict the minority class in the imbalanced
 variable, the factor variables need to be encoded to vector types to
@@ -348,12 +362,6 @@ Class
 </table>
 
 ``` r
-# encoding <- build_encoding(dataSet = X_train, cols = "auto", verbose = TRUE)
-# X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
-# X_test <- one_hot_encoder(dataSet = X_test, encoding = encoding, drop = TRUE, verbose = TRUE)
-```
-
-``` r
 dx_$hypertension <- as.factor(dx_$hypertension)
 dx_$heart_disease <- as.factor(dx_$heart_disease)
 dx_$stroke <- as.factor(dx_$stroke)
@@ -365,20 +373,6 @@ dx_$smoking_status <- as.factor(dx_$smoking_status)
 str(dx_)
 ```
 
-    ## 'data.frame':    43400 obs. of  12 variables:
-    ##  $ id               : int  30669 30468 16523 56543 46136 32257 52800 41413 15266 28674 ...
-    ##  $ gender           : Factor w/ 3 levels "1","2","3": 1 1 2 2 1 2 2 2 2 2 ...
-    ##  $ age              : num  3 58 8 70 14 47 52 75 32 74 ...
-    ##  $ hypertension     : Factor w/ 2 levels "0","1": 1 2 1 1 1 1 1 1 1 2 ...
-    ##  $ heart_disease    : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 2 1 1 ...
-    ##  $ ever_married     : Factor w/ 2 levels "1","2": 1 2 1 2 1 2 2 2 2 2 ...
-    ##  $ work_type        : Factor w/ 5 levels "1","2","3","4",..: 1 2 2 2 3 2 2 4 2 4 ...
-    ##  $ Residence_type   : Factor w/ 2 levels "1","2": 1 2 2 1 1 2 2 1 1 2 ...
-    ##  $ avg_glucose_level: num  95.1 88 110.9 69 161.3 ...
-    ##  $ bmi              : num  18 39.2 17.6 35.9 19.1 50.1 17.7 27 32.3 54.6 ...
-    ##  $ smoking_status   : Factor w/ 3 levels "1","2","3": 1 1 1 2 1 2 2 1 3 1 ...
-    ##  $ stroke           : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...
-
 #### Class Imbalance
 
 To predict the minoritty class in stroke, the train set data is expose
@@ -388,7 +382,6 @@ class
 
 ``` r
 ## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification
-# balanced.data <- SMOTE(Class ~., dresstrain, perc.over = 4800, k = 5, perc.under = 1000)
 set.seed(3333)
 
 balanced_dx_ <-SMOTE(stroke ~., dx_, perc.over = 2100 , k = 5, perc.under = 160)
@@ -451,12 +444,10 @@ helps to reducing training bias.
 train_index <- sample(1:nrow(balanced_dx_), 0.8 * nrow(balanced_dx_))
 test_index <- setdiff(1:nrow(balanced_dx_), train_index)
 
-# Build X_train, y_train, X_test, y_test
+# Build X_train, X_test
 X_train <- balanced_dx_[train_index, 2:12]
-# y_train <- dx_[train_index, "stroke"]
 
 X_test <- balanced_dx_[test_index, 2:12]
-# y_test <- dx_[test_index, "stroke"]
 ```
 
 #### Model Training - Logistic Regression
@@ -474,118 +465,9 @@ model <- glm (stroke ~ ., data=X_train, family = binomial)
 summary(model)
 ```
 
-    ## 
-    ## Call:
-    ## glm(formula = stroke ~ ., family = binomial, data = X_train)
-    ## 
-    ## Deviance Residuals: 
-    ##     Min       1Q   Median       3Q      Max  
-    ## -3.3489  -0.4219  -0.1439   0.4954   3.3973  
-    ## 
-    ## Coefficients:
-    ##                     Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)       -5.869e+00  2.044e-01 -28.719  < 2e-16 ***
-    ## gender2           -2.275e-01  3.339e-02  -6.814  9.5e-12 ***
-    ## gender3           -1.279e+01  4.364e+02  -0.029   0.9766    
-    ## age                9.552e-02  1.413e-03  67.603  < 2e-16 ***
-    ## hypertension1      1.367e+00  3.776e-02  36.210  < 2e-16 ***
-    ## heart_disease1     1.827e+00  4.374e-02  41.777  < 2e-16 ***
-    ## ever_married2     -1.545e+00  4.510e-02 -34.248  < 2e-16 ***
-    ## work_type2        -3.995e-01  2.071e-01  -1.929   0.0537 .  
-    ## work_type3        -1.111e+01  8.995e+01  -0.124   0.9017    
-    ## work_type4        -6.678e-02  2.097e-01  -0.318   0.7502    
-    ## work_type5        -3.317e-02  2.097e-01  -0.158   0.8743    
-    ## Residence_type2   -2.896e-02  3.312e-02  -0.874   0.3819    
-    ## avg_glucose_level  4.773e-03  3.299e-04  14.471  < 2e-16 ***
-    ## bmi               -3.715e-03  2.763e-03  -1.344   0.1788    
-    ## smoking_status2    2.027e-01  3.818e-02   5.309  1.1e-07 ***
-    ## smoking_status3    4.048e-01  4.343e-02   9.321  < 2e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## (Dispersion parameter for binomial family taken to be 1)
-    ## 
-    ##     Null deviance: 46792  on 34826  degrees of freedom
-    ## Residual deviance: 23303  on 34811  degrees of freedom
-    ## AIC: 23335
-    ## 
-    ## Number of Fisher Scoring iterations: 13
-
 ``` r
 stepAIC(model, direction='both')
 ```
-
-    ## Start:  AIC=23334.57
-    ## stroke ~ gender + age + hypertension + heart_disease + ever_married + 
-    ##     work_type + Residence_type + avg_glucose_level + bmi + smoking_status
-    ## 
-    ##                     Df Deviance   AIC
-    ## - Residence_type     1    23303 23333
-    ## - bmi                1    23304 23334
-    ## <none>                    23303 23335
-    ## - gender             2    23350 23378
-    ## - smoking_status     2    23394 23422
-    ## - work_type          4    23415 23439
-    ## - avg_glucose_level  1    23514 23544
-    ## - ever_married       1    24635 24665
-    ## - hypertension       1    24703 24733
-    ## - heart_disease      1    25369 25399
-    ## - age                1    30325 30355
-    ## 
-    ## Step:  AIC=23333.33
-    ## stroke ~ gender + age + hypertension + heart_disease + ever_married + 
-    ##     work_type + avg_glucose_level + bmi + smoking_status
-    ## 
-    ##                     Df Deviance   AIC
-    ## - bmi                1    23305 23333
-    ## <none>                    23303 23333
-    ## + Residence_type     1    23303 23335
-    ## - gender             2    23351 23377
-    ## - smoking_status     2    23394 23420
-    ## - work_type          4    23416 23438
-    ## - avg_glucose_level  1    23515 23543
-    ## - ever_married       1    24636 24664
-    ## - hypertension       1    24704 24732
-    ## - heart_disease      1    25370 25398
-    ## - age                1    30326 30354
-    ## 
-    ## Step:  AIC=23333.12
-    ## stroke ~ gender + age + hypertension + heart_disease + ever_married + 
-    ##     work_type + avg_glucose_level + smoking_status
-    ## 
-    ##                     Df Deviance   AIC
-    ## <none>                    23305 23333
-    ## + bmi                1    23303 23333
-    ## + Residence_type     1    23304 23334
-    ## - gender             2    23352 23376
-    ## - smoking_status     2    23397 23421
-    ## - work_type          4    23418 23438
-    ## - avg_glucose_level  1    23519 23545
-    ## - ever_married       1    24642 24668
-    ## - hypertension       1    24705 24731
-    ## - heart_disease      1    25371 25397
-    ## - age                1    30465 30491
-
-    ## 
-    ## Call:  glm(formula = stroke ~ gender + age + hypertension + heart_disease + 
-    ##     ever_married + work_type + avg_glucose_level + smoking_status, 
-    ##     family = binomial, data = X_train)
-    ## 
-    ## Coefficients:
-    ##       (Intercept)            gender2            gender3  
-    ##         -5.959960          -0.226766         -12.769372  
-    ##               age      hypertension1     heart_disease1  
-    ##          0.095839           1.362640           1.825877  
-    ##     ever_married2         work_type2         work_type3  
-    ##         -1.546393          -0.442430         -11.140191  
-    ##        work_type4         work_type5  avg_glucose_level  
-    ##         -0.108945          -0.078248           0.004674  
-    ##   smoking_status2    smoking_status3  
-    ##          0.202073           0.405471  
-    ## 
-    ## Degrees of Freedom: 34826 Total (i.e. Null);  34813 Residual
-    ## Null Deviance:       46790 
-    ## Residual Deviance: 23310     AIC: 23330
 
 ``` r
 model_select <- glm(formula = stroke ~ gender + age + hypertension + heart_disease + 
@@ -665,7 +547,7 @@ p <- plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-25-1.png)<!-- --> The ROC curve
+![](CPM_files/figure-gfm/unnamed-chunk-24-1.png)<!-- --> The ROC curve
 shows further to the top left of the graph, this indicates a great test.
 
 ``` r
@@ -735,23 +617,11 @@ rf
 plot(rf) 
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 ``` r
 varImp(rf)
 ```
-
-    ##                     Overall
-    ## gender             151.3191
-    ## age               6032.4295
-    ## hypertension      1346.1225
-    ## heart_disease     2152.4434
-    ## ever_married       508.3672
-    ## work_type          485.5623
-    ## Residence_type     132.9275
-    ## avg_glucose_level 1731.3158
-    ## bmi               1450.9949
-    ## smoking_status     273.4629
 
 ``` r
 ## Important variables according to the model
@@ -761,7 +631,7 @@ varImpPlot(rf,
            main="Variable Importance")
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 > After applying Random Forest classifier algorithm, all contributing
 > causal factors were kept by the model and rated in order of importance
@@ -818,7 +688,7 @@ plot(ROCRperf_rf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-31-1.png)<!-- --> The ROC curve
+![](CPM_files/figure-gfm/unnamed-chunk-30-1.png)<!-- --> The ROC curve
 shows further to the top left of the graph, this indicates a great test,
 but is slightly lower than the Logistic Regression Classifier.
 
@@ -854,8 +724,6 @@ near perfect discrimination
 
 Calibration using Hosmer and Lemeshow goodness of fit test shows
 significant p-value which indicates model validity
-
-### External validation
 
 #### Conclusion
 
