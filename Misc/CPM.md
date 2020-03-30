@@ -1,7 +1,10 @@
 Stroke Clinical Predictive Model
 ================
 Tosin Dairo
-MAY 25, 2020
+MARCH 27, 2020
+
+For easy reproducibility run
+[CPM.rmd](https://github.com/tosi-n/Stroke-CPM/blob/master/CPM.rmd)
 
 ## Clinical Predictive Model classifier for stroke
 
@@ -27,8 +30,7 @@ their diagnosis and causal factors.
   - Residence Type
   - Average Glucose Level
   - BMI
-  - Smoking
-    Status
+  - Smoking Status
 
 <br></br>
 
@@ -36,24 +38,10 @@ their diagnosis and causal factors.
 {{knitr::spin_child('init.R')}}
 ```
 
-``` r
-head(d)
-```
+Click [init.R](https://github.com/tosi-n/Stroke-CPM/blob/master/init.R)
+script to locate Rstudio environment setup and R package installation
 
-    ##      id gender age hypertension heart_disease ever_married    work_type
-    ## 1 30669   Male   3            0             0           No     children
-    ## 2 30468   Male  58            1             0          Yes      Private
-    ## 3 16523 Female   8            0             0           No      Private
-    ## 4 56543 Female  70            0             0          Yes      Private
-    ## 5 46136   Male  14            0             0           No Never_worked
-    ## 6 32257 Female  47            0             0          Yes      Private
-    ##   Residence_type avg_glucose_level  bmi  smoking_status stroke
-    ## 1          Rural             95.12 18.0                      0
-    ## 2          Urban             87.96 39.2    never smoked      0
-    ## 3          Urban            110.89 17.6                      0
-    ## 4          Rural             69.04 35.9 formerly smoked      0
-    ## 5          Rural            161.28 19.1                      0
-    ## 6          Urban            210.95 50.1                      0
+#### Python library import
 
 #### Missing Values
 
@@ -84,7 +72,7 @@ fig, ax = plt.subplots(figsize=(14,12))
 sns.heatmap(r.d.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 d$gender <- as.factor(d$gender)
@@ -144,31 +132,6 @@ imp$method
 dx <- mice::complete(imp)
 ```
 
-``` python
-print(r.dx.isnull().sum())
-```
-
-    ## id                   0
-    ## gender               0
-    ## age                  0
-    ## hypertension         0
-    ## heart_disease        0
-    ## ever_married         0
-    ## work_type            0
-    ## Residence_type       0
-    ## avg_glucose_level    0
-    ## bmi                  0
-    ## smoking_status       0
-    ## stroke               0
-    ## dtype: int64
-
-``` python
-fig, ax = plt.subplots(figsize=(14,12))
-sns.heatmap(r.dx.isnull(),yticklabels=False,cbar=False,cmap='viridis') 
-```
-
-![](CPM_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
 #### Exploratory Analysis
 
 Stroke class from exploratory pairplot below shows imbalance in stroke
@@ -181,7 +144,7 @@ fig, ax = plt.subplots(figsize=(14,12))
 sns.pairplot(r.dx)
 ```
 
-    ## <seaborn.axisgrid.PairGrid object at 0x12c0e24a8>
+    ## <seaborn.axisgrid.PairGrid object at 0x13ae1af60>
 
 ``` python
 plt.show()
@@ -190,22 +153,15 @@ plt.show()
     ## /Volumes/Loopdisk/Dev/PyDsc/env/lib/python3.6/site-packages/matplotlib/figure.py:2299: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
     ##   warnings.warn("This figure includes Axes that are not compatible "
 
-![](CPM_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
-
-``` python
-sns.countplot(x='stroke', data = r.dx)
-plt.title("Stroke Class Distribution")
-plt.show()
-```
-
-    ## /Volumes/Loopdisk/Dev/PyDsc/env/lib/python3.6/site-packages/matplotlib/figure.py:2299: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
-    ##   warnings.warn("This figure includes Axes that are not compatible "
-
-![](CPM_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 {{knitr::spin_child('label_encode.R')}}
 ```
+
+Click
+[label\_encode.R](https://github.com/tosi-n/Stroke-CPM/blob/master/label_encode.R)
+script to locate label encoder code
 
 In order for us to predict the minority class in the imbalanced
 variable, the factor variables need to be encoded to vector types to
@@ -218,7 +174,7 @@ dx_ <- result[[2]]
 # encode.transform()
 ```
 
-> Checking proportion of imbalance in the beelow variables
+> Checking proportion of imbalance in the below variables
 
 ``` r
 tab_df(table(dx_$stroke), title = "Stroke Class")
@@ -432,7 +388,7 @@ Class
 
 </table>
 
-### Cross Validation:
+#### Cross Validation:
 
 For good predictions of stroke, a model must be well calibrated and have
 high discrimination. The input data was divided into two groups, in
@@ -455,15 +411,19 @@ X_test <- balanced_dx_[test_index, 2:12]
 To classify patients who have stroke or do not have stroke and to check
 for contributing causal factors to stroke, a binary classifier is built
 to predict the cases of stroke. State-of-the-art binary classifier
-Logistic Regression is applied. As per the TRIPOD guidelines, we would
-need to report this stroke clinical predictive model in sufficient
-detail to allow for reproducability on a totally dufferent dataset.
+Logistic Regression is applied. As per the
+[TRIPOD](https://www.tripod-statement.org/Portals/0/Tripod%20Checklist%20Prediction%20Model%20Development%20and%20Validation%20PDF.pdf)
+guidelines, we would need to report this stroke clinical predictive
+model in sufficient detail to allow for reproducability on a totally
+dufferent dataset.
 
 ``` r
 set.seed(3333)
 model <- glm (stroke ~ ., data=X_train, family = binomial)
 summary(model)
 ```
+
+###### Selection of contributing causal factors to stroke
 
 ``` r
 stepAIC(model, direction='both')
@@ -547,7 +507,7 @@ p <- plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-24-1.png)<!-- --> The ROC curve
+![](CPM_files/figure-gfm/unnamed-chunk-23-1.png)<!-- --> The ROC curve
 shows further to the top left of the graph, this indicates a great test.
 
 ``` r
@@ -588,9 +548,10 @@ significant p-value which indicates model validity
 To further check for a better prediction classifier, a Random Forest
 model is built check for contributing causal factors to stroke and also
 to classify patients who have stroke or do not have stroke. As per the
-TRIPOD guidelines, we would need to report this stroke clinical
-predictive model in sufficient detail to allow for reproducability on a
-totally dufferent dataset.
+[TRIPOD](https://www.tripod-statement.org/Portals/0/Tripod%20Checklist%20Prediction%20Model%20Development%20and%20Validation%20PDF.pdf)
+guidelines, we would need to report this stroke clinical predictive
+model in sufficient detail to allow for reproducability on a totally
+dufferent dataset.
 
 ``` r
 set.seed(3333)
@@ -598,26 +559,12 @@ rf = randomForest(stroke ~ .,
                   ntree = 500,
                    data = X_train)
 rf
-```
-
-    ## 
-    ## Call:
-    ##  randomForest(formula = stroke ~ ., data = X_train, ntree = 500) 
-    ##                Type of random forest: classification
-    ##                      Number of trees: 500
-    ## No. of variables tried at each split: 3
-    ## 
-    ##         OOB estimate of  error rate: 10.65%
-    ## Confusion matrix:
-    ##       0     1 class.error
-    ## 0 19064  1936  0.09219048
-    ## 1  1772 12055  0.12815506
-
-``` r
 plot(rf) 
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+###### Selection of contributing causal factors to stroke
 
 ``` r
 varImp(rf)
@@ -631,7 +578,7 @@ varImpPlot(rf,
            main="Variable Importance")
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 > After applying Random Forest classifier algorithm, all contributing
 > causal factors were kept by the model and rated in order of importance
@@ -688,7 +635,7 @@ plot(ROCRperf_rf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-30-1.png)<!-- --> The ROC curve
+![](CPM_files/figure-gfm/unnamed-chunk-29-1.png)<!-- --> The ROC curve
 shows further to the top left of the graph, this indicates a great test,
 but is slightly lower than the Logistic Regression Classifier.
 
