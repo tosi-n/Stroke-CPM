@@ -27,35 +27,10 @@ their diagnosis and causal factors.
   - Residence Type
   - Average Glucose Level
   - BMI
-  - Smoking Status
+  - Smoking
+    Status
 
 <br></br>
-
-``` r
-#
-# init.R
-# Stroke-CPM
-#
-# Created by Tosin-Dairo on 28/03/2020
-# MIT License
-#
-
-my_packages = c("rmarkdown","httr", "reticulate", "tidyverse", "mice", "MASS", "sjPlot", "dataPreparation", "DMwR", "randomForest", "caret", "pROC", "ROCR", "ResourceSelection","devtools")
-
-
-install_if_missing = function(p) {
-  if (p %in% rownames(installed.packages()) == FALSE) {
-    install.packages(p)
-  }
-}
-
-invisible(sapply(my_packages, install_if_missing))
-# install pool from Github
-invisible(devtools::install_github("rstudio/pool"))
-```
-
-    ## Skipping install of 'pool' from a github remote, the SHA1 (0b03680b) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
 
 ``` r
 head(d)
@@ -130,43 +105,19 @@ str(d)
     ##  $ smoking_status   : Factor w/ 4 levels "","formerly smoked",..: NA 3 NA 2 NA NA 2 3 4 3 ...
     ##  $ stroke           : int  0 0 0 0 0 0 0 0 0 0 ...
 
+After checking for missing values, smoking status and bmi had missing
+values which could lead drawing an inaccurate inference about the stroke
+classification
+
 #### Multiple Imputation for Missing Data
 
-> Using Predictive Mean Matching and Poly Regreession Technique
+> To prevent bias in prediction missing values are predicted and imputed
+> into the stroke dataset
 
-``` r
-imp <- mice(d, seed = 3333)
-```
-
-    ## 
-    ##  iter imp variable
-    ##   1   1  bmi  smoking_status
-    ##   1   2  bmi  smoking_status
-    ##   1   3  bmi  smoking_status
-    ##   1   4  bmi  smoking_status
-    ##   1   5  bmi  smoking_status
-    ##   2   1  bmi  smoking_status
-    ##   2   2  bmi  smoking_status
-    ##   2   3  bmi  smoking_status
-    ##   2   4  bmi  smoking_status
-    ##   2   5  bmi  smoking_status
-    ##   3   1  bmi  smoking_status
-    ##   3   2  bmi  smoking_status
-    ##   3   3  bmi  smoking_status
-    ##   3   4  bmi  smoking_status
-    ##   3   5  bmi  smoking_status
-    ##   4   1  bmi  smoking_status
-    ##   4   2  bmi  smoking_status
-    ##   4   3  bmi  smoking_status
-    ##   4   4  bmi  smoking_status
-    ##   4   5  bmi  smoking_status
-    ##   5   1  bmi  smoking_status
-    ##   5   2  bmi  smoking_status
-    ##   5   3  bmi  smoking_status
-    ##   5   4  bmi  smoking_status
-    ##   5   5  bmi  smoking_status
-
-    ## Warning: Number of logged events: 25
+Using MICE package, Predictive Mean Matching and Poly Regreession
+technique are used to imput data missing at random from smoking status
+and
+    bmi
 
 ``` r
 imp$method
@@ -210,12 +161,17 @@ sns.heatmap(r.dx.isnull(),yticklabels=False,cbar=False,cmap='viridis')
 
 #### Exploratory Analysis
 
+Stroke class from exploratory pairplot below shows imbalance in stroke
+outcome, hypertension predictor and heart. Fitting a model on this
+imbalanced dataset would lead to overfitting whereby the trained model
+crams the train set data and predict wrongly on external datasets
+
 ``` python
 fig, ax = plt.subplots(figsize=(14,12))
 sns.pairplot(r.dx)
 ```
 
-    ## <seaborn.axisgrid.PairGrid object at 0x139d035c0>
+    ## <seaborn.axisgrid.PairGrid object at 0x13b9bffd0>
 
 ``` python
 plt.show()
@@ -228,103 +184,18 @@ plt.show()
 
 ``` python
 sns.countplot(x='stroke', data = r.dx)
+plt.title("Stroke Class Distribution")
+plt.show()
 ```
+
+    ## /Volumes/Loopdisk/Dev/PyDsc/env/lib/python3.6/site-packages/matplotlib/figure.py:2299: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+    ##   warnings.warn("This figure includes Axes that are not compatible "
 
 ![](CPM_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
-``` r
-#
-# label_encode.R
-# Stroke-CPM
-#
-# Created by Tosin-Dairo on 28/03/2020
-# MIT License
-#
-```
-
-``` r
-encode.fit_transform<-function(df, plug_missing=TRUE){
-  
-  list_of_levels=list()  #empty list   
-  
-  #loop through the columns
-  for (i in 1: ncol(df))
-  {
-    
-    #only   
-    if (is.character(df[,i]) ||  is.factor(df[,i]) ){
-      
-      #deal with missing
-      if(plug_missing){
-        
-        #if factor
-        if (is.factor(df[,i])){
-          df[,i] = factor(df[,i], levels=c(levels(df[,i]), 'MISSING'))
-          df[,i][is.na(df[,i])] = 'MISSING' 
-          
-          
-        }else{   #if character
-          
-          df[,i][is.na(df[,i])] = 'MISSING' 
-          
-        }
-      }#end missing IF
-      
-      levels<-unique(df[,i]) #distinct levels
-      list_of_levels[[colnames(df)[i]]] <- levels #set list with name of the columns to the levels
-      df[,i] <- as.numeric(factor(df[,i], levels = levels))
-      
-    }#end if character/factor IF
-    
-    
-  }#end loop
-  
-  return (list(list_of_levels,df)) #return the list of levels and the new DF
-  
-}#end of function
-```
-
-``` r
-encode.transform<-function(df,list_of_levels,plug_missing=TRUE)
-{
-  #loop through the columns
-  for (i in 1: ncol(df))
-  {
-    
-    #only   
-    if (is.character(df[,i]) ||  is.factor(df[,i]) ){
-      
-      
-      #deal with missing
-      if(plug_missing){
-        
-        #if factor
-        if (is.factor(df[,i])){
-          df[,i] = factor(df[,i], levels=c(levels(df[,i]), 'MISSING'))
-          df[,i][is.na(df[,i])] = 'MISSING' 
-          
-          
-        }else{   #if character
-          
-          df[,i][is.na(df[,i])] = 'MISSING' 
-          
-        }
-      }#end missing IF
-      
-      levels=list_of_levels[[colnames(df)[i]]]
-      
-      if (! is.null(levels)){
-        df[,i] <- as.numeric(factor(df[,i], levels = levels))
-      }
-      
-    }# character or factor
-    
-  }#end of loop
-  
-  return(df)
-  
-}#end of function
-```
+In order for us to predict the minority class in the imbalanced
+variable, the factor variables need to be encoded to vector types to
+enable prediction through oversampleing of minority class.
 
 ``` r
 result <- encode.fit_transform(dx)
@@ -332,6 +203,8 @@ result <- encode.fit_transform(dx)
 dx_ <- result[[2]]
 # encode.transform()
 ```
+
+> Checking proportion of imbalance in the beelow variables
 
 ``` r
 tab_df(table(dx_$stroke), title = "Stroke Class")
@@ -508,6 +381,11 @@ str(dx_)
 
 #### Class Imbalance
 
+To predict the minoritty class in stroke, the train set data is expose
+to SMOTE package inorder to use K-Nearest Neighbour for predicting
+miority
+class
+
 ``` r
 ## Smote : Synthetic Minority Oversampling Technique To Handle Class Imbalancy In Binary Classification
 # balanced.data <- SMOTE(Class ~., dresstrain, perc.over = 4800, k = 5, perc.under = 1000)
@@ -563,21 +441,10 @@ Class
 
 ### Cross Validation:
 
-The first stage of validation is an internal validation in which we
-ensure that the developed CPM makes good predictions in ‘test’ data that
-comes from the same population as that in which the CPM was developed.
-By ‘good predictions’ we mean predictions that are well calibrated and
-have high discrimination. Similar to the discussion in the previous
-module on regularised regression (lasso/ridge) a useful way of
-performing this is cross validation. Recall that k-fold cross-validation
-involves: Dividing the data we have available into k equally sized
-groups (commonly we use k between 5 and 10). Fit the CPM using all the
-groups except one. Use the remaining group as ‘test’ data to see how the
-model performs Repeat this process k times, leaving out a different
-group each time. Average performance over these k. A simpler alternative
-to cross-validation would just be to divide the data into two groups,
-fit the data in one group and validate it in the other. You will
-commonly see this in the literature.
+For good predictions of stroke, a model must be well calibrated and have
+high discrimination. The input data was divided into two groups, in
+order to fit the data in one group and validate it in the other.This
+helps to reducing training bias.
 
 ``` r
 # Random sample indexes
@@ -590,22 +457,18 @@ X_train <- balanced_dx_[train_index, 2:12]
 
 X_test <- balanced_dx_[test_index, 2:12]
 # y_test <- dx_[test_index, "stroke"]
-
-table(X_train$stroke)
 ```
-
-    ## 
-    ##     0     1 
-    ## 21000 13827
 
 #### Model Training - Logistic Regression
 
+To classify patients who have stroke or do not have stroke and to check
+for contributing causal factors to stroke, a binary classifier is built
+to predict the cases of stroke. State-of-the-art binary classifier
+Logistic Regression is applied. As per the TRIPOD guidelines, we would
+need to report this stroke clinical predictive model in sufficient
+detail to allow for reproducability on a totally dufferent dataset.
+
 ``` r
-# balanced_dx_$hypertension <- as.factor(balanced_dx_$hypertension)
-# balanced_dx_$heart_disease <- as.factor(balanced_dx_$heart_disease)
-# balanced_dx_$stroke <- as.factor(balanced_dx_$stroke)
-# balanced_dx_$gender <- as.factor(balanced_dx_$gender)
-# str(balanced_dx_)
 set.seed(3333)
 model <- glm (stroke ~ ., data=X_train, family = binomial)
 summary(model)
@@ -768,6 +631,12 @@ summary(model_select)
     ## 
     ## Number of Fisher Scoring iterations: 13
 
+Using the stepwise AIC technique, the trained model for stroke has
+dropped the variables BMI and Reesident Type as they are not
+contributing factors that would lead to stroke. Stroke classification is
+non-preedicttive from the above 2 variables, and they have
+non-significant p-values which are \> 0.05.
+
 ``` r
 ## Predict the Values
 predict <- predict(model, X_test, type = 'response')
@@ -781,15 +650,12 @@ table(X_test$stroke, predict > 0.5)
     ##   0  4678  630
     ##   1   617 2782
 
-Discrimination refers to the ability of a CPM to separate patients who
-will develop an outcome from those who will not. This is closely related
-to the concepts of sensitivity and specificity (as discussed in the last
-semester). A CPM that can have a simultaneously high sensitivity and
-specificity has good discrimination. However, the definition of
-sensitivity and specificity are a little limited for our purposes since
-they rely on a specific cutpoint. A receiver operator characteristic
-(ROC) curve plots sensitivity against ‘1-specificity’ across the full
-range of potential cutpoints.
+#### Discrimination of Logistic Regression Classifier
+
+Using the Discrimination, we check if trained CPM has a simultaneously
+high sensitivity and specificity. A receiver operator characteristic
+(ROC) curve is ploted using sensitivity against ‘1-specificity’ across
+the full range of potential cutpoints at 93%.
 
 ``` r
 #ROCR Curve
@@ -799,14 +665,8 @@ p <- plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-24-1.png)<!-- --> The ‘ideal’
-test (or CPM) has 100% sensitivity and 100% specificity – i.e. we know
-with certainty what the outcome is. A test (or CPM) with no value lies
-on the diagonal line – because I can build a CPM as good as this just by
-tossing a (weighted) coin for each patient to decide whether they have
-the outcome or not. So we expect that any reasonable CPM or test should
-fall within this ‘envelope’. The further to the top left of the graph
-the ROC curve falls, the better the test.
+![](CPM_files/figure-gfm/unnamed-chunk-25-1.png)<!-- --> The ROC curve
+shows further to the top left of the graph, this indicates a great test.
 
 ``` r
 auc(roc(X_test$stroke ~ predict))
@@ -830,25 +690,25 @@ hoslem.test(x = X_test$stroke, y=predict, g=10)
     ## data:  X_test$stroke, predict
     ## X-squared = 8707, df = 8, p-value < 2.2e-16
 
-We measure how far to the top left of the graph the curve is via the
-area under the curve (AUC): So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two. So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two.
+To determine how far to the top left of the graph the curve is, the Area
+Under the Curve (AUC) is calculated
 
-Calibration and discrimination are two complementary measures, and in
-general we would like a CPM to perform well on both measures. Good
-calibration is generally the easier to achieve, but also ‘drifts’ most
-readily when the population changes. Poor calibration generally reflects
-a poor model rather than limitations in the data. Poor discrimination is
-hard to fix since this often reflects a lack of information (e.g. we do
-not know why, among a group of similar patients, some will go on to have
-a heart attack and some won’t) rather than problems in the actual model.
+So the AUC for the Logistic Regression Classifier is 0.92 which
+represents a near perfect discrimination
+
+#### Calibration of Logistic Regression Classifier
+
+Calibration using Hosmer and Lemeshow goodness of fit test shows
+significant p-value which indicates model validity
 
 #### Model Training - Random Forest
+
+To further check for a better prediction classifier, a Random Forest
+model is built check for contributing causal factors to stroke and also
+to classify patients who have stroke or do not have stroke. As per the
+TRIPOD guidelines, we would need to report this stroke clinical
+predictive model in sufficient detail to allow for reproducability on a
+totally dufferent dataset.
 
 ``` r
 set.seed(3333)
@@ -875,7 +735,7 @@ rf
 plot(rf) 
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ``` r
 varImp(rf)
@@ -901,7 +761,11 @@ varImpPlot(rf,
            main="Variable Importance")
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](CPM_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+
+> After applying Random Forest classifier algorithm, all contributing
+> causal factors were kept by the model and rated in order of importance
+> as seen in the above plot
 
 ``` r
 predicted.response <- predict(rf, X_test)
@@ -941,15 +805,10 @@ confusionMatrix(data=predicted.response,
 
 #### Discrimination of Random Forest Classifier
 
-Discrimination refers to the ability of a CPM to separate patients who
-will develop an outcome from those who will not. This is closely related
-to the concepts of sensitivity and specificity (as discussed in the last
-semester). A CPM that can have a simultaneously high sensitivity and
-specificity has good discrimination. However, the definition of
-sensitivity and specificity are a little limited for our purposes since
-they rely on a specific cutpoint. A receiver operator characteristic
-(ROC) curve plots sensitivity against ‘1-specificity’ across the full
-range of potential cutpoints.
+Using the Discrimination, we check if trained CPM has a simultaneously
+high sensitivity and specificity. A receiver operator characteristic
+(ROC) curve is ploted using sensitivity against ‘1-specificity’ across
+the full range of potential cutpoints at 88%.
 
 ``` r
 #ROCR Curve
@@ -959,14 +818,9 @@ plot(ROCRperf_rf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-![](CPM_files/figure-gfm/unnamed-chunk-30-1.png)<!-- --> The ‘ideal’
-test (or CPM) has 100% sensitivity and 100% specificity – i.e. we know
-with certainty what the outcome is. A test (or CPM) with no value lies
-on the diagonal line – because I can build a CPM as good as this just by
-tossing a (weighted) coin for each patient to decide whether they have
-the outcome or not. So we expect that any reasonable CPM or test should
-fall within this ‘envelope’. The further to the top left of the graph
-the ROC curve falls, the better the test.
+![](CPM_files/figure-gfm/unnamed-chunk-31-1.png)<!-- --> The ROC curve
+shows further to the top left of the graph, this indicates a great test,
+but is slightly lower than the Logistic Regression Classifier.
 
 ``` r
 auc(roc(X_test$stroke ~ as.numeric(predicted.response)))
@@ -990,24 +844,24 @@ hoslem.test(x = X_test$stroke, y=as.numeric(predicted.response), g=10)
     ## data:  X_test$stroke, as.numeric(predicted.response)
     ## X-squared = 8707, df = 8, p-value < 2.2e-16
 
-We measure how far to the top left of the graph the curve is via the
-area under the curve (AUC): So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two. So that an AUC of 1.0 represents perfect
-discrimination, an AUC of 0.5 represents no predictive value (no better
-than tossing a coin), and the AUC we would expect to see for our CPM is
-somewhere in between the two.
+To determine how far to the top left of the graph the curve is, the Area
+Under the Curve (AUC) is calculated
 
-#### Calibration of Random Forest Classifier
+So the AUC for the Random Forest classifier is 0.89 which represents a
+near perfect discrimination
 
-Calibration and discrimination are two complementary measures, and in
-general we would like a CPM to perform well on both measures. Good
-calibration is generally the easier to achieve, but also ‘drifts’ most
-readily when the population changes. Poor calibration generally reflects
-a poor model rather than limitations in the data. Poor discrimination is
-hard to fix since this often reflects a lack of information (e.g. we do
-not know why, among a group of similar patients, some will go on to have
-a heart attack and some won’t) rather than problems in the actual model.
+#### Calibration of Logistic Regression Classifier
+
+Calibration using Hosmer and Lemeshow goodness of fit test shows
+significant p-value which indicates model validity
 
 ### External validation
+
+#### Conclusion
+
+Overall logistic regression was selected as the best model to predict if
+a patient can have stroke or not. To achieve this and reduce the
+potential of bias and oveerfitting of trained model, imbalanced data are
+sampled because it is a common hurdle in healthcare. Also performed
+multiple imputation to predict missing data of smoke status in other
+ways as well
