@@ -30,13 +30,11 @@ their diagnosis and causal factors.
   - Residence Type
   - Average Glucose Level
   - BMI
-  - Smoking
-    Status
+  - Smoking Status
 
 <br></br>
 
 ``` r
-<<<<<<< HEAD
 {{knitr::spin_child('init.R')}}
 ```
 
@@ -44,25 +42,6 @@ Click [init.R](https://github.com/tosi-n/Stroke-CPM/blob/master/init.R)
 script to locate Rstudio environment setup and R package installation
 
 #### Python library import
-=======
-head(d)
-```
-
-    ##      id gender age hypertension heart_disease ever_married    work_type
-    ## 1 30669   Male   3            0             0           No     children
-    ## 2 30468   Male  58            1             0          Yes      Private
-    ## 3 16523 Female   8            0             0           No      Private
-    ## 4 56543 Female  70            0             0          Yes      Private
-    ## 5 46136   Male  14            0             0           No Never_worked
-    ## 6 32257 Female  47            0             0          Yes      Private
-    ##   Residence_type avg_glucose_level  bmi  smoking_status stroke
-    ## 1          Rural             95.12 18.0                      0
-    ## 2          Urban             87.96 39.2    never smoked      0
-    ## 3          Urban            110.89 17.6                      0
-    ## 4          Rural             69.04 35.9 formerly smoked      0
-    ## 5          Rural            161.28 19.1                      0
-    ## 6          Urban            210.95 50.1                      0
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 #### Missing Values
 
@@ -121,7 +100,6 @@ str(d)
 After checking for missing values, smoking status and bmi had missing
 values which could lead drawing an inaccurate inference about the stroke
 classification
-<<<<<<< HEAD
 
 #### Multiple Imputation for Missing Data
 
@@ -132,22 +110,12 @@ Using MICE package, Predictive Mean Matching and Poly Regreession
 technique are used to imput data missing at random from smoking status
 and
     bmi
-=======
 
-#### Multiple Imputation for Missing Data
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
+``` r
+imp <- mice(d, seed = 3333)
+```
 
-> To prevent bias in prediction missing values are predicted and imputed
-> into the stroke dataset
-
-<<<<<<< HEAD
     ## Warning: Number of logged events: 25
-=======
-Using MICE package, Predictive Mean Matching and Poly Regreession
-technique are used to imput data missing at random from smoking status
-and
-    bmi
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 ``` r
 imp$method
@@ -176,11 +144,7 @@ fig, ax = plt.subplots(figsize=(14,12))
 sns.pairplot(r.dx)
 ```
 
-<<<<<<< HEAD
-    ## <seaborn.axisgrid.PairGrid object at 0x13ae1af60>
-=======
-    ## <seaborn.axisgrid.PairGrid object at 0x13b9bffd0>
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
+    ## <seaborn.axisgrid.PairGrid object at 0x13dd1af98>
 
 ``` python
 plt.show()
@@ -189,7 +153,6 @@ plt.show()
     ## /Volumes/Loopdisk/Dev/PyDsc/env/lib/python3.6/site-packages/matplotlib/figure.py:2299: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
     ##   warnings.warn("This figure includes Axes that are not compatible "
 
-<<<<<<< HEAD
 ![](CPM_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
@@ -199,20 +162,6 @@ plt.show()
 Click
 [label\_encode.R](https://github.com/tosi-n/Stroke-CPM/blob/master/label_encode.R)
 script to locate label encoder code
-=======
-![](CPM_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
-
-``` python
-sns.countplot(x='stroke', data = r.dx)
-plt.title("Stroke Class Distribution")
-plt.show()
-```
-
-    ## /Volumes/Loopdisk/Dev/PyDsc/env/lib/python3.6/site-packages/matplotlib/figure.py:2299: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
-    ##   warnings.warn("This figure includes Axes that are not compatible "
-
-![](CPM_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 In order for us to predict the minority class in the imbalanced
 variable, the factor variables need to be encoded to vector types to
@@ -225,11 +174,7 @@ dx_ <- result[[2]]
 # encode.transform()
 ```
 
-<<<<<<< HEAD
 > Checking proportion of imbalance in the below variables
-=======
-> Checking proportion of imbalance in the beelow variables
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 ``` r
 tab_df(table(dx_$stroke), title = "Stroke Class")
@@ -443,11 +388,7 @@ Class
 
 </table>
 
-<<<<<<< HEAD
 #### Cross Validation:
-=======
-### Cross Validation:
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 For good predictions of stroke, a model must be well calibrated and have
 high discrimination. The input data was divided into two groups, in
@@ -463,10 +404,6 @@ test_index <- setdiff(1:nrow(balanced_dx_), train_index)
 X_train <- balanced_dx_[train_index, 2:12]
 
 X_test <- balanced_dx_[test_index, 2:12]
-<<<<<<< HEAD
-=======
-# y_test <- dx_[test_index, "stroke"]
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 ```
 
 #### Model Training - Logistic Regression
@@ -474,17 +411,11 @@ X_test <- balanced_dx_[test_index, 2:12]
 To classify patients who have stroke or do not have stroke and to check
 for contributing causal factors to stroke, a binary classifier is built
 to predict the cases of stroke. State-of-the-art binary classifier
-<<<<<<< HEAD
 Logistic Regression is applied. As per the
 [TRIPOD](https://www.tripod-statement.org/Portals/0/Tripod%20Checklist%20Prediction%20Model%20Development%20and%20Validation%20PDF.pdf)
 guidelines, we would need to report this stroke clinical predictive
 model in sufficient detail to allow for reproducability on a totally
 dufferent dataset.
-=======
-Logistic Regression is applied. As per the TRIPOD guidelines, we would
-need to report this stroke clinical predictive model in sufficient
-detail to allow for reproducability on a totally dufferent dataset.
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 ``` r
 set.seed(3333)
@@ -576,11 +507,7 @@ p <- plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-<<<<<<< HEAD
 ![](CPM_files/figure-gfm/unnamed-chunk-23-1.png)<!-- --> The ROC curve
-=======
-![](CPM_files/figure-gfm/unnamed-chunk-25-1.png)<!-- --> The ROC curve
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 shows further to the top left of the graph, this indicates a great test.
 
 ``` r
@@ -621,16 +548,10 @@ significant p-value which indicates model validity
 To further check for a better prediction classifier, a Random Forest
 model is built check for contributing causal factors to stroke and also
 to classify patients who have stroke or do not have stroke. As per the
-<<<<<<< HEAD
 [TRIPOD](https://www.tripod-statement.org/Portals/0/Tripod%20Checklist%20Prediction%20Model%20Development%20and%20Validation%20PDF.pdf)
 guidelines, we would need to report this stroke clinical predictive
 model in sufficient detail to allow for reproducability on a totally
 dufferent dataset.
-=======
-TRIPOD guidelines, we would need to report this stroke clinical
-predictive model in sufficient detail to allow for reproducability on a
-totally dufferent dataset.
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 ``` r
 set.seed(3333)
@@ -641,13 +562,9 @@ rf
 plot(rf) 
 ```
 
-<<<<<<< HEAD
 ![](CPM_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ###### Selection of contributing causal factors to stroke
-=======
-![](CPM_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 ``` r
 varImp(rf)
@@ -661,11 +578,7 @@ varImpPlot(rf,
            main="Variable Importance")
 ```
 
-<<<<<<< HEAD
 ![](CPM_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
-=======
-![](CPM_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 
 > After applying Random Forest classifier algorithm, all contributing
 > causal factors were kept by the model and rated in order of importance
@@ -722,11 +635,7 @@ plot(ROCRperf_rf, colorize = TRUE, text.adj = c(-0.2,1.7))
 abline(a=0, b=1)
 ```
 
-<<<<<<< HEAD
 ![](CPM_files/figure-gfm/unnamed-chunk-29-1.png)<!-- --> The ROC curve
-=======
-![](CPM_files/figure-gfm/unnamed-chunk-31-1.png)<!-- --> The ROC curve
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 shows further to the top left of the graph, this indicates a great test,
 but is slightly lower than the Logistic Regression Classifier.
 
@@ -763,11 +672,6 @@ near perfect discrimination
 Calibration using Hosmer and Lemeshow goodness of fit test shows
 significant p-value which indicates model validity
 
-<<<<<<< HEAD
-=======
-### External validation
-
->>>>>>> 16f27d6... Structured Poetic Documentation --SPD
 #### Conclusion
 
 Overall logistic regression was selected as the best model to predict if
