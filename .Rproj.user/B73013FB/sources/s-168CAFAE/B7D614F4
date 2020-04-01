@@ -1,24 +1,25 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1585597362179.000,
+    "created" : 1585721957536.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
-    "id" : "4507D581",
+    "hash" : "3751130500",
+    "id" : "B7D614F4",
     "lastKnownWriteTime" : 1585722035,
-    "last_content_update" : 1585722035,
+    "last_content_update" : 1585722035052,
     "path" : "/Volumes/Loopdisk/Stroke-CPM/.gitignore",
     "project_path" : ".gitignore",
     "properties" : {
         "cursorPosition" : "0,4",
-        "scrollLine" : "0"
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
     },
     "read_only" : false,
     "read_only_alternatives" : [
     ],
-    "relative_order" : 8,
+    "relative_order" : 9,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "gitignore"
