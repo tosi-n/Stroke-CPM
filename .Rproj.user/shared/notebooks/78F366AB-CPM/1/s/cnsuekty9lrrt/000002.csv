@@ -1,0 +1,4 @@
+"0","{{knitr::spin_child('init.R')}}"
+"2","Skipping install of 'pool' from a github remote, the SHA1 (0b03680b) has not changed since last install.
+  Use `force = TRUE` to force installation
+"

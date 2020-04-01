@@ -1,0 +1,146 @@
+getwd()
+library(reticulate)
+library(mice)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(stargazer)
+library(sjPlot)
+use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
+d <- read.csv("/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv")
+reticulate::py_config()
+getwd()
+library(reticulate)
+library(mice)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(stargazer)
+library(sjPlot)
+use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
+d <- read.csv("/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv")
+reticulate::py_config()
+str(d)
+head(d)
+View(d)
+d$smoking_status <- na_if(d$smoking_status, "none")
+d$smoking_status <- na_if(d$smoking_status, "")
+d$gender <- as.factor(d$gender)
+d$ever_married <- as.factor(d$ever_married)
+d$work_type <- as.factor(d$work_type)
+d$Residence_type <- as.factor(d$Residence_type)
+d$smoking_status <- as.factor(d$smoking_status)
+str(d)
+imp <- mice(d, seed = 3333)
+tab_df(imp$where, title = "WHERE IMPUTATION OCCURS WITHIN THE FULL DATASET")
+imp <- mice(d, seed = 3333)
+imp$method
+dx <- mice::complete(imp)
+View(dx)
+# Random sample indexes
+train_index <- sample(1:nrow(adult), 0.8 * nrow(dx))
+# Random sample indexes
+train_index <- sample(1:nrow(dx), 0.8 * nrow(dx))
+test_index <- setdiff(1:nrow(dx), train_index)
+# Build X_train, y_train, X_test, y_test
+X_train <- dx[train_index, -12]
+y_train <- dx[train_index, "stroke"]
+X_test <- dx[test_index, -12]
+y_test <- dx[test_index, "stroke"]
+View(X_train)
+View(X_train)
+X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+X_train <- dataPreparation::one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+install.packages("dataPreparation")
+getwd()
+library(reticulate)
+library(mice)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(stargazer)
+library(sjPlot)
+library(dataPreparation)
+use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
+d <- read.csv("/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv")
+reticulate::py_config()
+X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+X_train <- dataPreparation::one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+encoding <- build_encoding(dataSet = X_train, cols = "auto", verbose = TRUE)
+X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+X_test <- one_hot_encoder(dataSet = X_test, encoding = encoding, drop = TRUE, verbose = TRUE)
+View(X_train)
+# Random sample indexes
+train_index <- sample(1:nrow(dx), 0.8 * nrow(dx))
+test_index <- setdiff(1:nrow(dx), train_index)
+# Build X_train, y_train, X_test, y_test
+X_train <- dx[train_index, -12]
+y_train <- dx[train_index, "stroke"]
+X_test <- dx[test_index, -12]
+y_test <- dx[test_index, "stroke"]
+X_train = pd.get_dummies(r.X_train)
+View(X_train)
+encoding <- build_encoding(dataSet = X_train, cols = "auto", verbose = TRUE)
+X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+X_test <- one_hot_encoder(dataSet = X_test, encoding = encoding, drop = TRUE, verbose = TRUE)
+View(X_test)
+py_install("sklearn")
+py_install("imblearn")
+# Random sample indexes
+train_index <- sample(1:nrow(dx), 0.8 * nrow(dx))
+test_index <- setdiff(1:nrow(dx), train_index)
+# Build X_train, y_train, X_test, y_test
+X_train <- dx[train_index, -12]
+y_train <- dx[train_index, "stroke"]
+X_test <- dx[test_index, -12]
+y_test <- dx[test_index, "stroke"]
+library(data.table)
+X_train <- one_hot(X_train, dropCols=FALSE)
+library(data.table)
+X_train <- data.table::one_hot(X_train, dropCols=FALSE)
+encoding <- build_encoding(dataSet = X_train, cols = c("gender","ever_married","work_type","Residence_type","smoking_status"), verbose = TRUE)
+X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+X_test <- one_hot_encoder(dataSet = X_test, encoding = encoding, drop = TRUE, verbose = TRUE)
+# Random sample indexes
+train_index <- sample(1:nrow(dx), 0.8 * nrow(dx))
+test_index <- setdiff(1:nrow(dx), train_index)
+# Build X_train, y_train, X_test, y_test
+X_train <- dx[train_index, -12]
+y_train <- dx[train_index, "stroke"]
+X_test <- dx[test_index, -12]
+y_test <- dx[test_index, "stroke"]
+encoding <- build_encoding(dataSet = X_train, cols = "auto", verbose = TRUE)
+X_train <- one_hot_encoder(dataSet = X_train, encoding = encoding, drop = TRUE, verbose = TRUE)
+X_test <- one_hot_encoder(dataSet = X_test, encoding = encoding, drop = TRUE, verbose = TRUE)
+# Random sample indexes
+train_index <- sample(1:nrow(dx), 0.8 * nrow(dx))
+test_index <- setdiff(1:nrow(dx), train_index)
+# Build X_train, y_train, X_test, y_test
+X_train <- dx[train_index, -12]
+y_train <- dx[train_index, "stroke"]
+X_test <- dx[test_index, -12]
+y_test <- dx[test_index, "stroke"]
+install.packages("DMwR")
+getwd()
+library(reticulate)
+library(mice)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(stargazer)
+library(sjPlot)
+library(dataPreparation)
+library(DMwR)
+use_python("/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3", required = TRUE)
+d <- read.csv("/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv")
+reticulate::py_config()
+dx_ <- SMOTE(dx$stroke ~ ., dx, perc.over = 800, k = 5, perc.under = 200, learner = NULL)
+dx_ <- SMOTE(dx$stroke, dx, perc.over = 800, k = 5, perc.under = 200, learner = NULL)
+dx_ <- SMOTE(dx$stroke, dx, perc.over = 800, k = 5, perc.under = 200)
+dx_ <- SMOTE(dx$stroke, dx, perc.over = 800, k = 5, perc.under = 200)
+dx_ <- SMOTE(dx$stroke ~ ., dx, perc.over = 800, k = 5, perc.under = 200)
+dx_ <- SMOTE(dx$stroke ~ ., dx, perc.over = 800, k = 5, perc.under = 200)
+dx_ <- SMOTE(stroke ~ ., dx, perc.over = 800, k = 5, perc.under = 200)
+dx_ <- SMOTE(stroke, dx, perc.over = 800, k = 5, perc.under = 200)
+dx_ <- SMOTE(stroke ~ ., dx, perc.over = 800, k = 5, perc.under = 200)
+dx_ <- SMOTE(stroke ~ ., dx, perc.over = 800, k = 20, perc.under = 200)

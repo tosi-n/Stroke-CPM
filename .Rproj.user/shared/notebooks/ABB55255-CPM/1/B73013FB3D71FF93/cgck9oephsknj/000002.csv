@@ -1,0 +1,36 @@
+"0","getwd()"
+"1","[1]"
+"1"," ""/Volumes/Loopdisk/Stroke-CPM"""
+"1","
+"
+"0","library(reticulate)"
+"0","library(mice)"
+"0","library(tidyverse)"
+"0","library(ggplot2)"
+"0","library(MASS)"
+"0","library(stargazer)"
+"0","library(sjPlot)"
+"0","library(dataPreparation)"
+"0","library(DMwR)"
+"2","Loading required package: grid
+"
+"2","Registered S3 method overwritten by 'xts':
+  method     from
+  as.zoo.xts zoo 
+"
+"2","Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo 
+"
+"0","use_python(""/Volumes/Loopdisk/Dev/PyDsc/env/bin/python3"", required = TRUE)"
+"0","d <- read.csv(""/Volumes/Loopdisk/Stroke-CPM/data/train_2v.csv"")"
+"0","reticulate::py_config()"
+"1","python:         /Volumes/Loopdisk/Dev/PyDsc/env/bin/python3
+libpython:      /Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/config-3.6m-darwin/libpython3.6.dylib
+pythonhome:     /Library/Frameworks/Python.framework/Versions/3.6:/Library/Frameworks/Python.framework/Versions/3.6
+version:        3.6.8 (v3.6.8:3c6b436a57, Dec 24 2018, 02:04:31)  [GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.57)]
+numpy:          /Volumes/Loopdisk/Dev/PyDsc/env/lib/python3.6/site-packages/numpy
+numpy_version:  1.16.2
+
+NOTE: Python version was forced by use_python function
+"

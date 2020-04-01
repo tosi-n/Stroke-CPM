@@ -1,0 +1,12 @@
+"0","result <- encode.fit_transform(dx)"
+"2","Error in encode.fit_transform(dx) : 
+  could not find function ""encode.fit_transform""
+"
+"2","In addition: "
+"2","Warning message:
+"
+"2","In readLines(""label_encode.R"") :"
+"2","
+ "
+"2"," incomplete final line found on 'label_encode.R'
+"
